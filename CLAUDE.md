@@ -38,7 +38,8 @@ The system prompt in `src/lib/system-prompt.ts` injects the full resume data and
 
 ### Input & Menu Behavior
 
-- InputBox renders between two `─` separator lines with a `❯` prompt (white, bold)
+- Prompt area mirrors kiro-cli, top to bottom: `TrustNotice` (divider + warning line), `Divider`, `StatusLine` (agent · model / path · (branch)), `InputBox`, `SlashMenu`, right-aligned `/copy to clipboard` hint. Pieces live in `src/components/chrome/`
+- InputBox has no prompt glyph: block cursor + placeholder `ask a question or describe a task ↵`
 - SlashMenu appears **below** the input showing max 5 matches, no scrollbar
 - InputBox auto-focuses on every render — never requires click to refocus
 - Enter in slash menu executes the command directly (not just fills input)
@@ -61,7 +62,7 @@ The welcome splash spells KIRO by default; `/?splash_name=Fabricio Telles` repla
 
 - **Colors**: All color values defined in `src/lib/colors.ts` as a const object, using kiro-cli's dark theme token names and values (`text`, `secondary`, `muted`, `surface`, `brand`, `accent`, `success`, `warning`…; named ANSI colors use the Tango palette). CSS variables mirror them in `globals.css` `@theme` block. `accent` (bold) is only for the selected item in menus, as kiro-cli's `selectedLabel`. Background `#19161d` (kiro-cli inherits the terminal's).
 - **Welcome box**: Uses text chars (`╭╮╰╯─`) for top/bottom borders and CSS `border-left`/`border-right` for sides. Never use Unicode box-drawing corners for CSS-rendered borders — they render poorly with JetBrains Mono in browsers.
-- **Prompt char**: Always `❯` (not `>`), always `colors.text` (white), bold.
+- **Prompt char**: none — kiro-cli's input shows only the cursor. Dividers are `colors.surface`, never brand-colored.
 - **Font**: JetBrains Mono monospace throughout.
 - **Responsive**: Mobile breakpoint at `sm` (640px). Welcome screen stacks panels on mobile.
 - **Path alias**: `@/*` maps to `./src/*`.

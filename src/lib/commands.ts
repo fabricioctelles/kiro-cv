@@ -14,7 +14,8 @@ export const commands: CommandDefinition[] = [
   { name: '/resume', aliases: ['/pdf', '/download'], description: 'View resume info', category: 'content' },
 
   // System commands (Kiro-style)
-  { name: '/clear', aliases: ['/cls'], description: 'Clear terminal', category: 'system' },
+  { name: '/clear', aliases: ['/cls', '/quit', '/exit'], description: 'Clear terminal', category: 'system' },
+  { name: '/copy', aliases: [], description: 'Copy the last response to your clipboard', category: 'system' },
   { name: '/status', aliases: [], description: 'Portfolio status & stats', category: 'system' },
   { name: '/version', aliases: ['/v'], description: 'Version info', category: 'system' },
   { name: '/compact', aliases: [], description: 'Compact context (simulated)', category: 'system' },

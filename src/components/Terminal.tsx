@@ -11,6 +11,10 @@ import { useAutoComplete } from '@/hooks/useAutoComplete';
 import { useTerminalScroll } from '@/hooks/useTerminalScroll';
 import { findCommand, fuzzyMatch, filterCommands } from '@/lib/commands';
 import { colors } from '@/lib/colors';
+import { siteConfig } from '@/config/site';
+import { Divider } from './chrome/Divider';
+import { StatusLine } from './chrome/StatusLine';
+import { TrustNotice } from './chrome/TrustNotice';
 
 // Command outputs
 import { Help, helpCommands } from './commands/Help';
@@ -332,6 +336,23 @@ export function Terminal({ splashName }: TerminalProps) {
           return;
         }
 
+        if (cmd.name === '/copy') {
+          const lastResponse = chatMessagesRef.current.findLast((m) => m.role === 'assistant')?.content;
+          const notice = (text: string, color: string) => (
+            <div className="text-xs sm:text-sm py-1" style={{ color }}>{text}</div>
+          );
+          if (!lastResponse) {
+            addEntry({ type: 'command', input: trimmed, output: notice('No response to copy', colors.error) });
+          } else {
+            navigator.clipboard.writeText(lastResponse).then(
+              () => addEntry({ type: 'command', input: trimmed, output: notice('Copied to clipboard', colors.success) }),
+              () => addEntry({ type: 'command', input: trimmed, output: notice('Failed to copy', colors.error) }),
+            );
+          }
+          setInput('');
+          return;
+        }
+
         if (cmd.name === '/help') {
           addEntry({
             type: 'command',
@@ -566,9 +587,18 @@ export function Terminal({ splashName }: TerminalProps) {
             />
           )}
 
-          {/* Input then slash menu below — hidden when help selector is open */}
+          {/* Prompt area, laid out like kiro-cli: trust notice, divider,
+              status line, input, slash menu, hint — hidden while /help is open */}
           {!helpSelectorOpen && (
             <>
+              <TrustNotice />
+              <Divider />
+              <StatusLine
+                agent="Default"
+                model={careerModels[currentModelIndex]?.name ?? ''}
+                location={siteConfig.path}
+                branch={siteConfig.branch}
+              />
               <InputBox
                 value={input}
                 onChange={handleInputChange}
@@ -588,9 +618,12 @@ export function Terminal({ splashName }: TerminalProps) {
                   }}
                 />
               )}
-              {/* Hint */}
-              <div className="text-xs py-0.5 ml-2" style={{ color: colors.muted }}>
-                ? for shortcuts
+              {/* Hint — kiro-cli shows it right-aligned while the prompt is empty */}
+              <div
+                className="text-xs sm:text-sm text-right px-[1ch] mb-[1.5em] min-h-[1.5em]"
+                style={{ color: colors.muted }}
+              >
+                {!input && !isAiLoading && '/copy to clipboard'}
               </div>
             </>
           )}
