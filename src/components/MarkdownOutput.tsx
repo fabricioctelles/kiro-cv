@@ -9,14 +9,10 @@ interface MarkdownOutputProps {
 
 export function MarkdownOutput({ content }: MarkdownOutputProps) {
   return (
-    <div className="text-xs sm:text-sm py-1">
-      {/* Left border line */}
-      <div className="flex">
-        <div
-          className="w-0.5 mr-3 shrink-0 self-stretch rounded"
-          style={{ backgroundColor: colors.brand }}
-        />
-        <div className="flex-1 min-w-0 prose-terminal">
+    <div className="text-xs sm:text-sm">
+      {/* The left bar comes from MessageBar, as in kiro-cli */}
+      <div>
+        <div className="min-w-0 prose-terminal">
           <Markdown
             components={{
               p: ({ children }) => (

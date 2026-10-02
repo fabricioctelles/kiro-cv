@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Spinner } from '../Spinner';
+import { ThinkingIndicator } from '../ThinkingIndicator';
 import { colors } from '@/lib/colors';
 import { personalConfig } from '@/config/personal';
 
@@ -39,7 +39,7 @@ export function Init() {
   return (
     <div className="text-xs sm:text-sm py-1 space-y-2">
       {/* Phase 0: Spinner */}
-      {phase === 0 && <Spinner />}
+      {phase === 0 && <ThinkingIndicator />}
 
       {/* Phase 1+: Read step */}
       {phase >= 1 && (
@@ -57,7 +57,7 @@ export function Init() {
       )}
 
       {/* Phase 1 spinner between steps */}
-      {phase === 1 && <Spinner />}
+      {phase === 1 && <ThinkingIndicator />}
 
       {/* Phase 2+: Write step */}
       {phase >= 2 && (
@@ -70,7 +70,7 @@ export function Init() {
       )}
 
       {/* Phase 2 spinner before diff */}
-      {phase === 2 && <Spinner />}
+      {phase === 2 && <ThinkingIndicator />}
 
       {/* Phase 3: Diff view */}
       {phase >= 3 && (

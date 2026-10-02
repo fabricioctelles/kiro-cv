@@ -40,6 +40,7 @@ The system prompt in `src/lib/system-prompt.ts` injects the full resume data and
 
 - Prompt area mirrors kiro-cli, top to bottom: `TrustNotice` (divider + warning line), `Divider`, `StatusLine` (agent · model / path · (branch)), `InputBox`, `SlashMenu`, right-aligned `/copy to clipboard` hint. Pieces live in `src/components/chrome/`
 - InputBox has no prompt glyph: block cursor + placeholder `ask a question or describe a task ↵`
+- Conversation follows kiro-cli's message rows: `MessageBar` (1-column bar, filled with brand only for the latest turn) + content 1 column in. User prompts render on `colors.surface` with a blank row after (`UserPrompt`). While waiting, `ThinkingIndicator` shows the `brailleFill` spinner in the bar, `Thinking... (esc to cancel)`, and a `╰ Tip:` after 2s. Command output panels render without a bar.
 - SlashMenu appears **below** the input showing max 5 matches, no scrollbar
 - InputBox auto-focuses on every render — never requires click to refocus
 - Enter in slash menu executes the command directly (not just fills input)
