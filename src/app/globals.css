@@ -1,0 +1,125 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  /* Kiro Dark Theme Colors */
+  --color-brand: #b080ff;
+  --color-brand-dark: #7138cc;
+  --color-success: #80ffb5;
+  --color-error: #ff8080;
+  --color-warning: #ffcf99;
+  --color-permission: #8dc8fb;
+  --color-bash-border: #b080ff;
+  --color-prompt-border: #b080ff;
+  --color-subtle: #938f9b;
+  --color-inactive: #666666;
+  --color-bg: #19161d;
+  --color-surface: #211d25;
+  --color-panel: #28242e;
+  --color-text: #ffffff;
+  --color-muted: rgba(255, 255, 255, 0.6);
+
+  /* Syntax highlighting */
+  --color-keyword: #e2d3fe;
+  --color-function: #8dc8fb;
+  --color-class: #ffcf99;
+  --color-string: #80ffb5;
+  --color-variable: #80f4ff;
+  --color-constant: #ff80b5;
+  --color-comment: rgba(255, 255, 255, 0.6);
+
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Cursor blink animation */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.cursor-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* Spinner animation */
+@keyframes spin-chars {
+  0%    { content: "·"; }
+  16%   { content: "✢"; }
+  33%   { content: "✳"; }
+  50%   { content: "✶"; }
+  66%   { content: "✻"; }
+  83%   { content: "✽"; }
+  100%  { content: "·"; }
+}
+
+/* Kiro-style scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-brand-dark);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand);
+}
+
+/* Selection with purple tint */
+::selection {
+  background: rgba(176, 128, 255, 0.3);
+  color: var(--color-text);
+}
+
+/* Links */
+a {
+  color: var(--color-permission);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.15s ease;
+}
+
+a:hover {
+  color: var(--color-brand);
+}
+
+/* Focus styles for accessibility */
+*:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+/* Code blocks */
+pre, code {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* Smooth transitions */
+* {
+  transition-property: background-color, border-color, color;
+  transition-duration: 0.15s;
+  transition-timing-function: ease;
+}
+
+/* Disable transitions for elements that shouldn't animate */
+input, textarea, pre, code {
+  transition: none;
+}
