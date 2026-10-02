@@ -1,50 +1,24 @@
 'use client';
 
 import { colors } from '@/lib/colors';
-import { kiroLogoLines } from '@/lib/kiro-logo';
+import { KiroLogo } from '@/components/KiroLogo';
 
 interface WelcomeScreenProps {
   currentModelIndex?: number;
-}
-
-// Gradient colors for the logo (from lighter purple to darker)
-const logoGradientColors = [
-  '#e2d3fe', // lightest
-  '#d4c0fc',
-  '#c6adfa',
-  '#b89af8',
-  '#aa87f6',
-  '#9c74f4', // darkest visible
-];
-
-function KiroLogo() {
-  return (
-    <pre className="text-sm sm:text-base md:text-lg leading-tight font-mono text-center">
-      {kiroLogoLines.map((line, index) => {
-        // Create gradient effect from top (lighter) to bottom (darker)
-        const colorIndex = Math.min(index, logoGradientColors.length - 1);
-        return (
-          <div key={index} style={{ color: logoGradientColors[colorIndex] }}>
-            {line}
-          </div>
-        );
-      })}
-    </pre>
-  );
 }
 
 export function WelcomeScreen({ currentModelIndex = 0 }: WelcomeScreenProps) {
   return (
     <div className="text-xs sm:text-sm select-none mb-6">
       {/* Logo */}
-      <div className="flex justify-center mb-6 mt-4">
+      <div className="mb-4 mt-4">
         <KiroLogo />
       </div>
 
       {/* Welcome message */}
       <div className="text-center mb-4">
         <span style={{ color: colors.text }}>Welcome to </span>
-        <span style={{ color: colors.brand }}>Kiro CLI V3</span>
+        <span style={{ color: colors.logo }}>Kiro CLI V3</span>
         <span style={{ color: colors.text }}>!</span>
       </div>
 

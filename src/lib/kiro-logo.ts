@@ -73,16 +73,3 @@ export const kiroLogoLetterGaps = [1, 0, 0, 0] as const;
 
 // Delay between letters in the reveal animation
 export const KIRO_LOGO_REVEAL_MS = 300;
-
-// Legacy block-character logo (superseded by kiroLogoLetters, removed once
-// WelcomeScreen switches to KiroLogo)
-export const kiroLogoLines = [
-  ' ▄▄   ▄▄▄   ▄▄▄▄▄▄   ▄▄▄▄▄▄      ▄▄▄▄   ',
-  ' ██  ██▀    ▀▀██▀▀   ██▀▀▀▀██   ██▀▀██  ',
-  ' ██▄██        ██     ██    ██  ██    ██ ',
-  ' █████        ██     ███████   ██    ██ ',
-  ' ██  ██▄      ██     ██  ▀██▄  ██    ██ ',
-  ' ██   ██▄   ▄▄██▄▄   ██    ██   ██▄▄██  ',
-  ' ▀▀    ▀▀   ▀▀▀▀▀▀   ▀▀    ▀▀▀   ▀▀▀▀   ',
-];
-
