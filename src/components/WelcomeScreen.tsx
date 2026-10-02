@@ -2,62 +2,59 @@
 
 import { colors } from '@/lib/colors';
 import { KiroLogo } from '@/components/KiroLogo';
+import { isTipHighlight } from '@/lib/tips';
 
 interface WelcomeScreenProps {
-  currentModelIndex?: number;
   splashName?: string;
+  tip?: string;
 }
 
-export function WelcomeScreen({ currentModelIndex = 0, splashName }: WelcomeScreenProps) {
+const Blank = () => <div aria-hidden="true">&nbsp;</div>;
+
+// Mirrors kiro-cli's welcome banner (`xm`): logo, then a centered column
+// with one block per line. Blocks shrink to their text, so a line that wraps
+// stays left-aligned inside its centered block, as Ink renders it.
+export function WelcomeScreen({ splashName, tip }: WelcomeScreenProps) {
   return (
-    <div className="text-xs sm:text-sm select-none mb-6">
-      {/* Logo */}
-      <div className="mb-4 mt-4">
+    <div className="text-xs sm:text-sm leading-[1.5em] select-none mb-[1.5em]">
+      <div className="mt-4">
         <KiroLogo text={splashName} />
       </div>
 
-      {/* Welcome message */}
-      <div className="text-center mb-4">
-        <span style={{ color: colors.text }}>Welcome to </span>
-        <span style={{ color: colors.brand }}>Kiro CLI V3</span>
-        <span style={{ color: colors.text }}>!</span>
-      </div>
-
-      {/* What's new section */}
-      <div className="text-center mb-2">
-        <span style={{ color: colors.text }} className="font-bold">What&apos;s new: </span>
-        <span style={{ color: colors.muted }}>
-          Specs, expanded hooks, and an improved trust model.
-        </span>
-      </div>
-
-      {/* Upgrade message */}
-      <div className="text-center mb-1" style={{ color: colors.muted }}>
-        Upgrade your V2 agent configurations to V3 with{' '}
-        <span style={{ color: colors.brand }}>/upgrade-agent</span>
-      </div>
-
-      {/* Documentation link */}
-      <div className="text-center mb-4">
+      <div className="flex flex-col items-center mt-[1.5em] px-[2ch]" style={{ color: colors.text }}>
+        <div>
+          Welcome to <span style={{ color: colors.brand }}>Kiro CLI V3</span>!
+        </div>
+        <Blank />
+        <div>
+          <span className="font-bold">What&apos;s new:</span> Specs, expanded hooks, and an improved trust model.
+        </div>
+        <div>
+          Upgrade your V2 agent configurations to V3 with <span className="font-bold">/upgrade-agent</span>
+        </div>
         <a
           href="https://kiro.dev/docs/cli/v3/"
           target="_blank"
           rel="noopener noreferrer"
-          style={{ color: colors.link }}
-          className="hover:underline"
+          // kiro-cli prints the URL as plain brand-colored text
+          style={{ color: colors.brand, textDecoration: 'none' }}
         >
           https://kiro.dev/docs/cli/v3/
         </a>
-      </div>
-
-      {/* Tip */}
-      <div className="text-center mt-6">
-        <span style={{ color: colors.text }} className="font-bold">Tip: </span>
-        <span style={{ color: colors.muted }}>Press </span>
-        <span style={{ color: colors.brand }}>Ctrl+V</span>
-        <span style={{ color: colors.muted }}> or run </span>
-        <span style={{ color: colors.brand }}>/paste</span>
-        <span style={{ color: colors.muted }}> to attach an image from your clipboard to the conversation.</span>
+        {tip && (
+          <>
+            <Blank />
+            <div>
+              <span className="font-bold">Tip: </span>
+              {tip.split(' ').map((word, i) => (
+                <span key={i} style={isTipHighlight(word) ? { color: colors.brand } : undefined}>
+                  {i > 0 && ' '}
+                  {word}
+                </span>
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

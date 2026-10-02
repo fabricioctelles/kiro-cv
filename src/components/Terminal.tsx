@@ -46,9 +46,11 @@ interface HistoryEntry {
 interface TerminalProps {
   // ?splash_name= — spelled in the Kiro font on the welcome screen
   splashName?: string;
+  // Startup tip, picked once per page load on the server
+  tip?: string;
 }
 
-export function Terminal({ splashName }: TerminalProps) {
+export function Terminal({ splashName, tip }: TerminalProps) {
   const [input, setInput] = useState('');
   const [history, setHistory] = useState<HistoryEntry[]>([
     { id: 'welcome', type: 'welcome' },
@@ -146,8 +148,9 @@ export function Terminal({ splashName }: TerminalProps) {
         e.preventDefault();
         handleClear();
       }
-      if (e.ctrlKey && e.key === 'c') {
-        e.preventDefault();
+      // Ctrl+C or Esc interrupts the current turn, as in kiro-cli
+      if ((e.ctrlKey && e.key === 'c') || e.key === 'Escape') {
+        if (e.key !== 'Escape') e.preventDefault();
         if (abortRef.current) {
           abortRef.current.abort();
           abortRef.current = null;
@@ -523,7 +526,7 @@ export function Terminal({ splashName }: TerminalProps) {
         <div className="max-w-[1100px] mx-auto">
           {history.map((entry) => {
             if (entry.type === 'welcome') {
-              return <WelcomeScreen key={entry.id} currentModelIndex={currentModelIndex} splashName={splashName} />;
+              return <WelcomeScreen key={entry.id} splashName={splashName} tip={tip} />;
             }
 
             if (entry.type === 'command') {
