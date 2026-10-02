@@ -12,6 +12,7 @@ import { useTerminalScroll } from '@/hooks/useTerminalScroll';
 import { findCommand, fuzzyMatch, filterCommands } from '@/lib/commands';
 import { colors } from '@/lib/colors';
 import { siteConfig } from '@/config/site';
+import { ConnectingLine } from './chrome/ConnectingLine';
 import { Divider } from './chrome/Divider';
 import { MessageBar, UserPrompt } from './chrome/MessageBar';
 import { StatusLine } from './chrome/StatusLine';
@@ -45,6 +46,9 @@ interface HistoryEntry {
   cancelled?: boolean;
 }
 
+// How long the simulated connection takes on first load
+const CONNECT_MS = 700;
+
 interface TerminalProps {
   // ?splash_name= — spelled in the Kiro font on the welcome screen
   splashName?: string;
@@ -61,6 +65,8 @@ export function Terminal({ splashName, tip }: TerminalProps) {
   const [showSlashMenu, setShowSlashMenu] = useState(false);
   const [menuIndex, setMenuIndex] = useState(0);
   const [isAiLoading, setIsAiLoading] = useState(false);
+  // First load only: kiro-cli shows "Connecting to kiro.dev…" before the banner
+  const [connecting, setConnecting] = useState(true);
 
   // Model selector state
   const [modelSelectorOpen, setModelSelectorOpen] = useState(false);
@@ -77,6 +83,11 @@ export function Terminal({ splashName, tip }: TerminalProps) {
   const abortRef = useRef<AbortController | null>(null);
   const chatMessagesRef = useRef<{ role: 'user' | 'assistant'; content: string }[]>([]);
   const [pendingHelpCommand, setPendingHelpCommand] = useState<string | null>(null);
+
+  useEffect(() => {
+    const id = setTimeout(() => setConnecting(false), CONNECT_MS);
+    return () => clearTimeout(id);
+  }, []);
 
   // Auto-scroll on history changes
   useEffect(() => {
@@ -531,6 +542,7 @@ export function Terminal({ splashName, tip }: TerminalProps) {
             const active = index === history.length - 1;
 
             if (entry.type === 'welcome') {
+              if (connecting) return <ConnectingLine key={entry.id} />;
               return <WelcomeScreen key={entry.id} splashName={splashName} tip={tip} />;
             }
 
