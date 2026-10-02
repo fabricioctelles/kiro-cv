@@ -3,7 +3,7 @@
 // the welcome banner). Each letter is Unicode Braille art (U+2800–U+28FF) mixed
 // with plain spaces — both are 1 column wide, so never trim or normalize them.
 //
-// Original layout rules (reproduced in KiroLogo.tsx):
+// Original layout rules (reproduced by kiro-text.ts / KiroLogo.tsx):
 // - letters are separate blocks laid out in a row, centered
 // - one extra space column only after the first letter (K)
 // - with animation, letters appear one by one every 300ms
