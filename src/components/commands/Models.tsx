@@ -23,7 +23,7 @@ export function Models({
       {/* Separator */}
       <div
         className="w-full h-px mb-3"
-        style={{ backgroundColor: colors.promptBorder }}
+        style={{ backgroundColor: colors.surface }}
       />
 
       <div className="pl-1 mb-1">
@@ -31,7 +31,7 @@ export function Models({
           Select model
         </span>
       </div>
-      <div className="pl-1 mb-3" style={{ color: colors.subtle }}>
+      <div className="pl-1 mb-3" style={{ color: colors.muted }}>
         ↑↓ Navigate · Enter to confirm · Esc to exit
       </div>
 
@@ -45,7 +45,7 @@ export function Models({
               key={model.name}
               className="flex items-center gap-2 py-0.5 cursor-pointer"
               style={{
-                color: isSelected ? colors.text : colors.subtle,
+                color: isSelected ? colors.text : colors.muted,
                 backgroundColor: isSelected ? 'rgba(87, 105, 247, 0.08)' : 'transparent',
               }}
               onClick={() => onConfirm(i)}
@@ -53,17 +53,17 @@ export function Models({
               <span style={{ color: isSelected ? colors.brand : 'transparent' }}>
                 ❯
               </span>
-              <span style={{ color: colors.inactive }}>{i + 1}.</span>
+              <span style={{ color: colors.secondary }}>{i + 1}.</span>
               <span
                 className={isSelected ? 'font-bold' : ''}
-                style={{ color: isSelected ? colors.text : colors.subtle }}
+                style={{ color: isSelected ? colors.text : colors.muted }}
               >
                 {model.name}
               </span>
               {isCurrent && (
                 <span style={{ color: colors.success }}>✔</span>
               )}
-              <span style={{ color: colors.inactive }}>
+              <span style={{ color: colors.secondary }}>
                 {model.subtitle} · {model.description}
               </span>
             </div>
@@ -74,11 +74,11 @@ export function Models({
       {/* Effort indicator */}
       <div className="pl-1 mt-3 flex items-center gap-2">
         <span style={{ color: colors.brand }}>▌▌▌</span>
-        <span style={{ color: colors.subtle }}>High effort (default)</span>
+        <span style={{ color: colors.muted }}>High effort (default)</span>
       </div>
 
       {/* Footer */}
-      <div className="pl-1 mt-2" style={{ color: colors.inactive }}>
+      <div className="pl-1 mt-2" style={{ color: colors.secondary }}>
         Enter to confirm · Esc to exit
       </div>
     </div>

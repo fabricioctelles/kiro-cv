@@ -39,7 +39,7 @@ export function Spinner() {
   return (
     <div className="flex items-center gap-2 text-xs sm:text-sm py-1">
       <span style={{ color: colors.brand }}>{spinChars[charIndex]}</span>
-      <span style={{ color: colors.subtle }}>{verbs[verbIndex]}...</span>
+      <span style={{ color: colors.muted }}>{verbs[verbIndex]}...</span>
     </div>
   );
 }

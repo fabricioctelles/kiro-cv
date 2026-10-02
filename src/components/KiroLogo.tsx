@@ -86,7 +86,7 @@ export function KiroLogo({ text, animate = true }: KiroLogoProps) {
                   width={`${cols * DOT_EM}em`}
                   height={`${rows * DOT_EM}em`}
                   style={{ marginRight: i < line.length - 1 ? `${letter.gapAfter * DOT_EM}em` : undefined }}
-                  fill={colors.logo}
+                  fill={colors.brand}
                 >
                   {letter.dots.flatMap((dotRow, y) =>
                     dotRow.map((on, x) =>

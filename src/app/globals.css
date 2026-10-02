@@ -2,32 +2,34 @@
 @import "tailwindcss";
 
 @theme {
-  /* Kiro Dark Theme Colors */
-  --color-brand: #b080ff;
-  --color-brand-dark: #7138cc;
-  --color-logo: #C19AFF;
-  --color-success: #80ffb5;
-  --color-error: #ff8080;
-  --color-warning: #ffcf99;
-  --color-permission: #8dc8fb;
-  --color-bash-border: #b080ff;
-  --color-prompt-border: #b080ff;
-  --color-subtle: #938f9b;
-  --color-inactive: #666666;
-  --color-bg: #19161d;
-  --color-surface: #211d25;
-  --color-panel: #28242e;
+  /* Kiro CLI dark theme — mirrors src/lib/colors.ts */
   --color-text: #ffffff;
-  --color-muted: rgba(255, 255, 255, 0.6);
+  --color-secondary: #808080;
+  --color-muted: #9E9E9E;
+  --color-surface: #262626;
+  --color-brand: #C19AFF;
+  --color-brand-muted: #8700FF;
+  --color-accent: #ff00ff;
+  --color-highlight: #0087FF;
+  --color-link: #3465A4;
+  --color-info: #06989A;
+  --color-success: #00D787;
+  --color-warning: #C4A000;
+  --color-error: #CC0000;
+  --color-bg: #19161d;
+  --color-panel: #28242e;
 
   /* Syntax highlighting */
-  --color-keyword: #e2d3fe;
-  --color-function: #8dc8fb;
-  --color-class: #ffcf99;
-  --color-string: #80ffb5;
-  --color-variable: #80f4ff;
-  --color-constant: #ff80b5;
+  --color-keyword: #C2A0FD;
+  --color-built-in: #80F4FF;
+  --color-string: #80FFB5;
   --color-comment: rgba(255, 255, 255, 0.6);
+  --color-number: #FFAFD1;
+  --color-literal: #FF8080;
+  --color-function: #8DC8FB;
+  --color-class: #FF80B5;
+  --color-variable: #80F4FF;
+  --color-punctuation: rgba(255, 255, 255, 0.8);
 
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
@@ -74,7 +76,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-brand-dark);
+  background: var(--color-brand-muted);
   border-radius: 4px;
 }
 
@@ -84,20 +86,20 @@ body {
 
 /* Selection with purple tint */
 ::selection {
-  background: rgba(176, 128, 255, 0.3);
+  background: rgba(193, 154, 255, 0.3);
   color: var(--color-text);
 }
 
 /* Links */
 a {
-  color: var(--color-permission);
+  color: var(--color-brand);
   text-decoration: underline;
   text-underline-offset: 2px;
   transition: color 0.15s ease;
 }
 
 a:hover {
-  color: var(--color-brand);
+  color: var(--color-text);
 }
 
 /* Focus styles for accessibility */

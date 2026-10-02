@@ -32,7 +32,7 @@ export function Skills() {
           <div className="pl-2 flex flex-wrap gap-x-3 gap-y-0.5">
             {cat.skills.map((skill) => (
               <span key={skill} style={{ color: colors.text }}>
-                <span style={{ color: colors.inactive }}>▪ </span>
+                <span style={{ color: colors.secondary }}>▪ </span>
                 {skill}
               </span>
             ))}
@@ -41,11 +41,11 @@ export function Skills() {
       ))}
       {uncategorized.length > 0 && (
         <div>
-          <span style={{ color: colors.subtle }} className="font-bold">Other</span>
+          <span style={{ color: colors.muted }} className="font-bold">Other</span>
           <div className="pl-2 flex flex-wrap gap-x-3 gap-y-0.5">
             {uncategorized.map((skill) => (
               <span key={skill} style={{ color: colors.text }}>
-                <span style={{ color: colors.inactive }}>▪ </span>
+                <span style={{ color: colors.secondary }}>▪ </span>
                 {skill}
               </span>
             ))}

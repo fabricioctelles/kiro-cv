@@ -10,7 +10,7 @@ export function Version() {
         <span style={{ color: colors.brand }}>{siteConfig.name}</span>
         <span style={{ color: colors.text }}> v{siteConfig.version}</span>
       </div>
-      <div style={{ color: colors.subtle }}>
+      <div style={{ color: colors.muted }}>
         Built with Next.js, TypeScript, and Kiro CLI
       </div>
     </div>

@@ -8,13 +8,13 @@ export function Download() {
 
   return (
     <div className="text-xs sm:text-sm py-1">
-      <div style={{ color: colors.subtle }}>
+      <div style={{ color: colors.muted }}>
         Want a more serious resume, even in PDF?{' '}
         <a
           href={url}
           target="_blank"
           rel="noopener noreferrer"
-          style={{ color: colors.helpBlue }}
+          style={{ color: colors.brand }}
         >
           {url.replace(/^https?:\/\//, '')}
         </a>

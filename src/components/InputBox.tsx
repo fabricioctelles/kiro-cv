@@ -63,7 +63,7 @@ export function InputBox({
       {/* Top separator */}
       <div
         className="w-full h-px"
-        style={{ backgroundColor: colors.promptBorder }}
+        style={{ backgroundColor: colors.surface }}
       />
 
       {/* Input row */}
@@ -99,7 +99,7 @@ export function InputBox({
         <button
           className="sm:hidden ml-1 px-2 py-0.5 rounded text-xs font-bold select-none"
           style={{
-            backgroundColor: value.trim() ? colors.brand : colors.inactive,
+            backgroundColor: value.trim() ? colors.brand : colors.secondary,
             color: '#fff',
           }}
           onClick={(e) => {
@@ -115,7 +115,7 @@ export function InputBox({
       {/* Bottom separator */}
       <div
         className="w-full h-px"
-        style={{ backgroundColor: colors.promptBorder }}
+        style={{ backgroundColor: colors.surface }}
       />
     </div>
   );

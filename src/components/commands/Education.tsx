@@ -16,12 +16,12 @@ export function Education() {
         return (
           <div key={i}>
             <div>
-              <span style={{ color: colors.inactive }}>{prefix}</span>
-              <span style={{ color: colors.helpBlue }} className="font-bold">{edu.institution}</span>
+              <span style={{ color: colors.secondary }}>{prefix}</span>
+              <span style={{ color: colors.brand }} className="font-bold">{edu.institution}</span>
             </div>
             <div>
-              <span style={{ color: colors.inactive, whiteSpace: 'pre' }}>{indent}</span>
-              <span style={{ color: colors.subtle }}>{edu.area}</span>
+              <span style={{ color: colors.secondary, whiteSpace: 'pre' }}>{indent}</span>
+              <span style={{ color: colors.muted }}>{edu.area}</span>
             </div>
           </div>
         );

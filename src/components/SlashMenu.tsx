@@ -30,19 +30,21 @@ export function SlashMenu({ input, selectedIndex, onSelect }: SlashMenuProps) {
     <div className="text-xs sm:text-sm py-1">
       {visibleMatches.map((cmd: CommandDefinition, i: number) => {
         const globalIndex = start + i;
+        const isSelected = globalIndex === selectedIndex;
         return (
           <div
             key={cmd.name}
             className="py-0.5 cursor-pointer flex gap-2 pl-2"
-            style={{
-              color: globalIndex === selectedIndex ? colors.helpBlue : colors.subtle,
-            }}
             onClick={() => onSelect(cmd.name)}
           >
-            <span style={{ color: globalIndex === selectedIndex ? colors.helpBlue : colors.subtle, minWidth: '120px', display: 'inline-block' }}>
+            {/* kiro-cli textStyles: label = primary, selectedLabel = accent + bold */}
+            <span
+              className={isSelected ? 'font-bold' : undefined}
+              style={{ color: isSelected ? colors.accent : colors.text, minWidth: '120px', display: 'inline-block' }}
+            >
               {cmd.name}
             </span>
-            <span style={{ color: colors.inactive }}>{cmd.description}</span>
+            <span style={{ color: colors.secondary }}>{cmd.description}</span>
           </div>
         );
       })}

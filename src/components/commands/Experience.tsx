@@ -19,12 +19,12 @@ export function Experience() {
           {/* Git log style commit header */}
           <div className="flex items-baseline gap-2 flex-wrap">
             <span>●</span>
-            <span style={{ color: colors.helpBlue }} className="font-bold">{job.name}</span>
-            <span style={{ color: colors.inactive }}>—</span>
+            <span style={{ color: colors.brand }} className="font-bold">{job.name}</span>
+            <span style={{ color: colors.secondary }}>—</span>
             <span style={{ color: colors.text }} className="font-bold">{job.position}</span>
           </div>
 
-          <div className="pl-4" style={{ color: colors.inactive }}>
+          <div className="pl-4" style={{ color: colors.secondary }}>
             {formatDate(job.startDate)} → {formatDate(job.endDate)}
             {!job.endDate && (
               <span style={{ color: colors.success }} className="ml-2 text-xs">● CURRENT</span>
@@ -35,8 +35,8 @@ export function Experience() {
           <div className="pl-4 mt-1 space-y-0.5">
             {job.highlights.map((h, j) => (
               <div key={j} className="flex gap-2">
-                <span style={{ color: colors.inactive }}>▸</span>
-                <span style={{ color: colors.subtle }}>{h}</span>
+                <span style={{ color: colors.secondary }}>▸</span>
+                <span style={{ color: colors.muted }}>{h}</span>
               </div>
             ))}
           </div>

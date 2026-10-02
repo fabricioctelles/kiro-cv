@@ -15,7 +15,7 @@ const statColors: Record<number, string> = {
   1: colors.brand,
   2: '#FFA500',
   3: colors.success,
-  4: colors.permission,
+  4: colors.link,
   5: colors.success,
 };
 
@@ -32,13 +32,13 @@ function ProgressBar({ stat }: { stat: UsageStatWithColor }) {
 
   return (
     <div className="flex items-baseline gap-3 text-xs sm:text-sm">
-      <span style={{ color: colors.subtle, minWidth: '180px', display: 'inline-block' }}>
+      <span style={{ color: colors.muted, minWidth: '180px', display: 'inline-block' }}>
         {stat.label}
       </span>
       <span style={{ color: stat.color }} className="font-mono">
         {bar}
       </span>
-      <span style={{ color: colors.inactive }}>
+      <span style={{ color: colors.secondary }}>
         {stat.percent}% {stat.status}
       </span>
     </div>
@@ -66,7 +66,7 @@ export function Usage() {
         ))}
       </div>
 
-      <div className="text-xs pt-1" style={{ color: colors.inactive }}>
+      <div className="text-xs pt-1" style={{ color: colors.secondary }}>
         Resets never ({personalConfig.timezone})
       </div>
     </div>

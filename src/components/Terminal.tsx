@@ -199,9 +199,9 @@ export function Terminal({ splashName }: TerminalProps) {
         return (
           <div className="text-xs sm:text-sm py-1">
             <div style={{ color: colors.brand }}>Current Context:</div>
-            <div style={{ color: colors.subtle }}>• Resume data loaded</div>
-            <div style={{ color: colors.subtle }}>• AI chat enabled</div>
-            <div style={{ color: colors.subtle }}>• All commands available</div>
+            <div style={{ color: colors.muted }}>• Resume data loaded</div>
+            <div style={{ color: colors.muted }}>• AI chat enabled</div>
+            <div style={{ color: colors.muted }}>• All commands available</div>
           </div>
         );
       default:
@@ -367,7 +367,7 @@ export function Terminal({ splashName }: TerminalProps) {
                 command not found: {trimmed}
               </span>
               {suggestion && (
-                <span style={{ color: colors.subtle }}>
+                <span style={{ color: colors.muted }}>
                   {' '}— Did you mean{' '}
                   <span style={{ color: colors.success }}>{suggestion}</span>?
                 </span>
@@ -589,7 +589,7 @@ export function Terminal({ splashName }: TerminalProps) {
                 />
               )}
               {/* Hint */}
-              <div className="text-xs py-0.5 ml-2" style={{ color: colors.subtle }}>
+              <div className="text-xs py-0.5 ml-2" style={{ color: colors.muted }}>
                 ? for shortcuts
               </div>
             </>

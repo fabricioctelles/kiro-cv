@@ -12,17 +12,17 @@ export function Cost() {
       <div style={{ color: colors.brand }} className="font-bold mb-1">Cost Analysis Report</div>
       <div className="space-y-0.5 pl-2">
         <div>
-          <span style={{ color: colors.subtle }}>  Coffees consumed:       </span>
+          <span style={{ color: colors.muted }}>  Coffees consumed:       </span>
           <span style={{ color: '#F5A623' }}>~{coffees.toLocaleString()}</span>
         </div>
         {personalConfig.costItems.map((item) => (
           <div key={item.label}>
-            <span style={{ color: colors.subtle }}>  {item.label}:  </span>
+            <span style={{ color: colors.muted }}>  {item.label}:  </span>
             <span style={{ color: colors.error }}>{item.value}</span>
           </div>
         ))}
         <div className="mt-1">
-          <span style={{ color: colors.subtle }}>  ROI:                    </span>
+          <span style={{ color: colors.muted }}>  ROI:                    </span>
           <span style={{ color: colors.success }} className="font-bold">priceless</span>
         </div>
       </div>

@@ -30,13 +30,13 @@ export function Help({ selectedIndex, onSelect, onCancel }: HelpProps) {
     <div className="text-xs sm:text-sm">
       {/* Version header */}
       <div className="mb-3 ml-2">
-        <span style={{ color: colors.helpBlue }} className="font-bold">
+        <span style={{ color: colors.brand }} className="font-bold">
           Claude Code v{siteConfig.version}
         </span>
       </div>
 
       {/* Commands label */}
-      <div className="pl-2 mb-2" style={{ color: colors.subtle }}>
+      <div className="pl-2 mb-2" style={{ color: colors.muted }}>
         Browse default commands:
       </div>
 
@@ -53,17 +53,17 @@ export function Help({ selectedIndex, onSelect, onCancel }: HelpProps) {
               onClick={() => onSelect(cmd.name)}
             >
               <div className="flex items-center gap-1">
-                <span style={{ color: isSelected ? colors.helpBlue : 'transparent' }}>
+                <span style={{ color: isSelected ? colors.accent : 'transparent' }}>
                   ❯
                 </span>
                 <span
                   className={isSelected ? 'font-bold' : ''}
-                  style={{ color: isSelected ? colors.helpBlue : colors.subtle }}
+                  style={{ color: isSelected ? colors.accent : colors.muted }}
                 >
                   {cmd.name}
                 </span>
               </div>
-              <div className="pl-3 -mt-0.5" style={{ color: colors.inactive }}>
+              <div className="pl-3 -mt-0.5" style={{ color: colors.secondary }}>
                 {cmd.description}
               </div>
             </div>
@@ -72,19 +72,19 @@ export function Help({ selectedIndex, onSelect, onCancel }: HelpProps) {
       </div>
 
       {/* Footer — always visible */}
-      <div className="pl-2 mt-3" style={{ color: colors.subtle }}>
+      <div className="pl-2 mt-3" style={{ color: colors.muted }}>
         For more help, visit and hire that guy:{' '}
         <a
           href={siteConfig.url}
           target="_blank"
           rel="noopener noreferrer"
-          style={{ color: colors.helpBlue }}
+          style={{ color: colors.brand }}
           className="underline"
         >
           {siteConfig.url}
         </a>
       </div>
-      <div className="pl-2" style={{ color: colors.inactive }}>
+      <div className="pl-2" style={{ color: colors.secondary }}>
         <em>Esc</em> to cancel
       </div>
     </div>

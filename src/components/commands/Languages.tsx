@@ -28,8 +28,8 @@ export function Languages() {
               {lang.language}
             </span>
             <span style={{ color: colors.success }}>{'█'.repeat(filled)}</span>
-            <span style={{ color: colors.inactive }}>{'░'.repeat(empty)}</span>
-            <span style={{ color: colors.subtle, marginLeft: '0.5em' }}>{fluencyLabel[lang.fluency] ?? lang.fluency}</span>
+            <span style={{ color: colors.secondary }}>{'░'.repeat(empty)}</span>
+            <span style={{ color: colors.muted, marginLeft: '0.5em' }}>{fluencyLabel[lang.fluency] ?? lang.fluency}</span>
           </div>
         );
       })}

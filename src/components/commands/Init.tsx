@@ -11,8 +11,8 @@ function getLineColor(line: string): string {
   if (line.startsWith('# ')) return colors.brand;
   if (line.startsWith('## ')) return colors.brand;
   if (line.startsWith('- ')) return colors.text;
-  if (line.startsWith('> ')) return colors.subtle;
-  if (line.startsWith('```')) return colors.inactive;
+  if (line.startsWith('> ')) return colors.muted;
+  if (line.startsWith('```')) return colors.secondary;
   if (line.startsWith('pnpm ')) return colors.success;
   return colors.text;
 }
@@ -47,10 +47,10 @@ export function Init() {
           <div className="flex items-center gap-1.5">
             <span style={{ color: colors.brand }}>⏺</span>
             <span style={{ color: colors.text }}>Read(</span>
-            <span style={{ color: colors.permission }}>resume.json</span>
+            <span style={{ color: colors.link }}>resume.json</span>
             <span style={{ color: colors.text }}>)</span>
           </div>
-          <div className="pl-5" style={{ color: colors.subtle }}>
+          <div className="pl-5" style={{ color: colors.muted }}>
             ⎿  Read 30 lines
           </div>
         </div>
@@ -64,7 +64,7 @@ export function Init() {
         <div className="flex items-center gap-1.5">
           <span style={{ color: colors.brand }}>⏺</span>
           <span style={{ color: colors.text }}>Write(</span>
-          <span style={{ color: colors.permission }}>KIRO.md</span>
+          <span style={{ color: colors.link }}>KIRO.md</span>
           <span style={{ color: colors.text }}>)</span>
         </div>
       )}
@@ -76,20 +76,20 @@ export function Init() {
       {phase >= 3 && (
         <div className="mt-2">
           {/* Top separator */}
-          <div className="overflow-hidden" style={{ color: colors.inactive }}>
+          <div className="overflow-hidden" style={{ color: colors.secondary }}>
             {'─'.repeat(200)}
           </div>
 
           {/* File header */}
           <div className="py-1 px-2">
-            <div style={{ color: colors.subtle }}>Create file</div>
+            <div style={{ color: colors.muted }}>Create file</div>
             <div style={{ color: colors.text }} className="font-bold">
               KIRO.md
             </div>
           </div>
 
           {/* Dashed separator */}
-          <div className="overflow-hidden" style={{ color: colors.inactive }}>
+          <div className="overflow-hidden" style={{ color: colors.secondary }}>
             {'╌'.repeat(200)}
           </div>
 
@@ -102,7 +102,7 @@ export function Init() {
                   {/* Line number */}
                   <span
                     className="w-8 sm:w-10 shrink-0 text-right pr-2 sm:pr-3 select-none"
-                    style={{ color: colors.inactive }}
+                    style={{ color: colors.secondary }}
                   >
                     {i + 1}
                   </span>
@@ -119,7 +119,7 @@ export function Init() {
           </div>
 
           {/* Bottom separator */}
-          <div className="overflow-hidden" style={{ color: colors.inactive }}>
+          <div className="overflow-hidden" style={{ color: colors.secondary }}>
             {'─'.repeat(200)}
           </div>
         </div>

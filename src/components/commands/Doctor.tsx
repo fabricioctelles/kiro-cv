@@ -32,13 +32,13 @@ export function Doctor() {
       <div className="space-y-0.5 pl-2">
         {checks.slice(0, visibleCount).map((check, i) => (
           <div key={i}>
-            <span style={{ color: colors.subtle }}>{check.label}... </span>
+            <span style={{ color: colors.muted }}>{check.label}... </span>
             <span style={{ color: check.color }} className="font-bold">{check.result}</span>
           </div>
         ))}
         {visibleCount < checks.length && (
           <div>
-            <span style={{ color: colors.subtle }}>{checks[visibleCount].label}... </span>
+            <span style={{ color: colors.muted }}>{checks[visibleCount].label}... </span>
             <span style={{ color: colors.brand }} className="cursor-blink">●</span>
           </div>
         )}

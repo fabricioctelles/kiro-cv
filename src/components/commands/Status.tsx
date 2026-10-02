@@ -21,29 +21,29 @@ export function Status() {
       <div className="space-y-0.5 pl-2">
         <div>
           <span style={{ color: colors.success }}>✓</span>
-          <span style={{ color: colors.subtle }}> Experience:  </span>
+          <span style={{ color: colors.muted }}> Experience:  </span>
           <span style={{ color: colors.text }}>{yearsExp}+ years in data engineering</span>
         </div>
         <div>
           <span style={{ color: colors.success }}>✓</span>
-          <span style={{ color: colors.subtle }}> Certs:       </span>
+          <span style={{ color: colors.muted }}> Certs:       </span>
           <span style={{ color: colors.text }}>{totalCerts} professional certifications</span>
         </div>
         {Object.entries(certsByIssuer).map(([issuer, count]) => (
           <div key={issuer}>
             <span style={{ color: colors.success }}>✓</span>
-            <span style={{ color: colors.subtle }}> {issuer} Certs:  </span>
+            <span style={{ color: colors.muted }}> {issuer} Certs:  </span>
             <span style={{ color: colors.text }}>{count} {issuer} certifications</span>
           </div>
         ))}
         <div>
           <span style={{ color: colors.success }}>✓</span>
-          <span style={{ color: colors.subtle }}> Companies:   </span>
+          <span style={{ color: colors.muted }}> Companies:   </span>
           <span style={{ color: colors.text }}>{companies} companies</span>
         </div>
         <div>
           <span style={{ color: colors.success }}>✓</span>
-          <span style={{ color: colors.subtle }}> Status:      </span>
+          <span style={{ color: colors.muted }}> Status:      </span>
           <span style={{ color: '#4FC3F7' }}>{personalConfig.status}</span>
         </div>
       </div>

@@ -30,7 +30,7 @@ export function MarkdownOutput({ content }: MarkdownOutputProps) {
                 </strong>
               ),
               em: ({ children }) => (
-                <em style={{ color: colors.subtle }}>{children}</em>
+                <em style={{ color: colors.muted }}>{children}</em>
               ),
               code: ({ children, className }) => {
                 const isBlock = className?.includes('language-');
@@ -84,7 +84,7 @@ export function MarkdownOutput({ content }: MarkdownOutputProps) {
                 </h2>
               ),
               h3: ({ children }) => (
-                <h3 className="text-xs sm:text-sm font-bold mb-1" style={{ color: colors.subtle }}>
+                <h3 className="text-xs sm:text-sm font-bold mb-1" style={{ color: colors.muted }}>
                   {children}
                 </h3>
               ),
@@ -94,7 +94,7 @@ export function MarkdownOutput({ content }: MarkdownOutputProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline"
-                  style={{ color: colors.permission }}
+                  style={{ color: colors.link }}
                 >
                   {children}
                 </a>
@@ -102,13 +102,13 @@ export function MarkdownOutput({ content }: MarkdownOutputProps) {
               blockquote: ({ children }) => (
                 <blockquote
                   className="pl-3 my-2"
-                  style={{ borderLeft: `2px solid ${colors.inactive}`, color: colors.subtle }}
+                  style={{ borderLeft: `2px solid ${colors.secondary}`, color: colors.muted }}
                 >
                   {children}
                 </blockquote>
               ),
               hr: () => (
-                <hr className="my-2" style={{ borderColor: colors.inactive }} />
+                <hr className="my-2" style={{ borderColor: colors.secondary }} />
               ),
             }}
           >

@@ -59,7 +59,7 @@ The welcome splash spells KIRO by default; `/?splash_name=Fabricio Telles` repla
 
 ## Key Conventions
 
-- **Colors**: All color values defined in `src/lib/colors.ts` as a const object. CSS variables mirror them in `globals.css` `@theme` block. Pure black background (`#000000`).
+- **Colors**: All color values defined in `src/lib/colors.ts` as a const object, using kiro-cli's dark theme token names and values (`text`, `secondary`, `muted`, `surface`, `brand`, `accent`, `success`, `warning`…; named ANSI colors use the Tango palette). CSS variables mirror them in `globals.css` `@theme` block. `accent` (bold) is only for the selected item in menus, as kiro-cli's `selectedLabel`. Background `#19161d` (kiro-cli inherits the terminal's).
 - **Welcome box**: Uses text chars (`╭╮╰╯─`) for top/bottom borders and CSS `border-left`/`border-right` for sides. Never use Unicode box-drawing corners for CSS-rendered borders — they render poorly with JetBrains Mono in browsers.
 - **Prompt char**: Always `❯` (not `>`), always `colors.text` (white), bold.
 - **Font**: JetBrains Mono monospace throughout.

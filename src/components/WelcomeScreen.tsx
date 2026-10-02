@@ -19,20 +19,20 @@ export function WelcomeScreen({ currentModelIndex = 0, splashName }: WelcomeScre
       {/* Welcome message */}
       <div className="text-center mb-4">
         <span style={{ color: colors.text }}>Welcome to </span>
-        <span style={{ color: colors.logo }}>Kiro CLI V3</span>
+        <span style={{ color: colors.brand }}>Kiro CLI V3</span>
         <span style={{ color: colors.text }}>!</span>
       </div>
 
       {/* What's new section */}
       <div className="text-center mb-2">
         <span style={{ color: colors.text }} className="font-bold">What&apos;s new: </span>
-        <span style={{ color: colors.subtle }}>
+        <span style={{ color: colors.muted }}>
           Specs, expanded hooks, and an improved trust model.
         </span>
       </div>
 
       {/* Upgrade message */}
-      <div className="text-center mb-1" style={{ color: colors.subtle }}>
+      <div className="text-center mb-1" style={{ color: colors.muted }}>
         Upgrade your V2 agent configurations to V3 with{' '}
         <span style={{ color: colors.brand }}>/upgrade-agent</span>
       </div>
@@ -43,7 +43,7 @@ export function WelcomeScreen({ currentModelIndex = 0, splashName }: WelcomeScre
           href="https://kiro.dev/docs/cli/v3/"
           target="_blank"
           rel="noopener noreferrer"
-          style={{ color: colors.permission }}
+          style={{ color: colors.link }}
           className="hover:underline"
         >
           https://kiro.dev/docs/cli/v3/
@@ -53,11 +53,11 @@ export function WelcomeScreen({ currentModelIndex = 0, splashName }: WelcomeScre
       {/* Tip */}
       <div className="text-center mt-6">
         <span style={{ color: colors.text }} className="font-bold">Tip: </span>
-        <span style={{ color: colors.subtle }}>Press </span>
+        <span style={{ color: colors.muted }}>Press </span>
         <span style={{ color: colors.brand }}>Ctrl+V</span>
-        <span style={{ color: colors.subtle }}> or run </span>
+        <span style={{ color: colors.muted }}> or run </span>
         <span style={{ color: colors.brand }}>/paste</span>
-        <span style={{ color: colors.subtle }}> to attach an image from your clipboard to the conversation.</span>
+        <span style={{ color: colors.muted }}> to attach an image from your clipboard to the conversation.</span>
       </div>
     </div>
   );
