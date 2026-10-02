@@ -4,6 +4,7 @@ export const colors = {
   // Primary accent (purple) - #7B5CFA is the official SVG logo fill color
   brand:        '#b080ff',
   brandDark:    '#7B5CFA',  // Official Kiro logo color
+  logo:         '#C19AFF',  // kiro-cli dark theme `brand` token (splash logo)
   
   // Semantic colors
   success:      '#80ffb5',
