@@ -48,6 +48,15 @@ The system prompt in `src/lib/system-prompt.ts` injects the full resume data and
 
 All resume data lives in `src/data/resume.json` (JSON Resume format), wrapped by `src/lib/resume-data.ts`. Command components read from this.
 
+### Splash Logo & Kiro Font
+
+The welcome splash spells KIRO by default; `/?splash_name=Fabricio Telles` replaces it with any text (read server-side in `src/app/page.tsx`, so `/` is dynamic). Text is uppercased, accents stripped, unsupported chars dropped, max 32 chars.
+
+- `src/lib/kiro-logo.ts` — original K/I/R/O Braille art, verbatim from the kiro-cli binary. Never trim or normalize its whitespace.
+- `src/lib/kiro-font.ts` — generates the other glyphs (A–Z, 0–9, `- . !`): each is a skeleton of strokes; the engine rasterizes the stroked silhouette on the Braille dot grid (44 dots tall) and keeps a 3-dot inner outline, matching the original letters. To add a glyph, add an entry to `glyphDefs`.
+- `src/lib/kiro-text.ts` — lays text out as dot-bitmap letters (originals for K/I/R/O), 4-dot letter gap, word wrap.
+- `src/components/KiroLogo.tsx` — renders the dots as SVG (Google Fonts JetBrains Mono has no Braille glyphs) with the 300ms per-letter reveal.
+
 ## Key Conventions
 
 - **Colors**: All color values defined in `src/lib/colors.ts` as a const object. CSS variables mirror them in `globals.css` `@theme` block. Pure black background (`#000000`).

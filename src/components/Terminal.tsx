@@ -39,7 +39,12 @@ interface HistoryEntry {
   isStreaming?: boolean;
 }
 
-export function Terminal() {
+interface TerminalProps {
+  // ?splash_name= — spelled in the Kiro font on the welcome screen
+  splashName?: string;
+}
+
+export function Terminal({ splashName }: TerminalProps) {
   const [input, setInput] = useState('');
   const [history, setHistory] = useState<HistoryEntry[]>([
     { id: 'welcome', type: 'welcome' },
@@ -497,7 +502,7 @@ export function Terminal() {
         <div className="max-w-[1100px] mx-auto">
           {history.map((entry) => {
             if (entry.type === 'welcome') {
-              return <WelcomeScreen key={entry.id} currentModelIndex={currentModelIndex} />;
+              return <WelcomeScreen key={entry.id} currentModelIndex={currentModelIndex} splashName={splashName} />;
             }
 
             if (entry.type === 'command') {

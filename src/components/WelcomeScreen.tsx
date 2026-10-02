@@ -5,14 +5,15 @@ import { KiroLogo } from '@/components/KiroLogo';
 
 interface WelcomeScreenProps {
   currentModelIndex?: number;
+  splashName?: string;
 }
 
-export function WelcomeScreen({ currentModelIndex = 0 }: WelcomeScreenProps) {
+export function WelcomeScreen({ currentModelIndex = 0, splashName }: WelcomeScreenProps) {
   return (
     <div className="text-xs sm:text-sm select-none mb-6">
       {/* Logo */}
       <div className="mb-4 mt-4">
-        <KiroLogo />
+        <KiroLogo text={splashName} />
       </div>
 
       {/* Welcome message */}
