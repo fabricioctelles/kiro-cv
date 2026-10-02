@@ -1,48 +1,22 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { colors } from '@/lib/colors';
-import { KIRO_LOGO_REVEAL_MS, kiroLogoLetterGaps, kiroLogoLetters } from '@/lib/kiro-logo';
+import { KIRO_LOGO_REVEAL_MS } from '@/lib/kiro-logo';
+import { layoutSplash, normalizeSplashText, splashLineWidth } from '@/lib/kiro-text';
 
 // Braille glyphs are rendered as SVG dots instead of text: the JetBrains Mono
 // build served by Google Fonts has no Braille coverage, and fallback fonts
 // break the 1-column grid the art depends on.
 
-// One terminal cell = 2×4 dot grid. Cell height = 2× width keeps the dot pitch
-// square, matching how the terminal renders it.
-const CELL_W = 2;
-const CELL_H = 4;
+// One terminal cell is 0.55em wide and 1.1em tall, split into 2×4 dots, so the
+// dot pitch is square: 0.275em in both directions.
+const DOT_EM = 0.275;
 const DOT = 0.55;
-
-// Braille bit → (column, row) inside the cell, per the Unicode dot numbering
-const BRAILLE_DOTS: readonly [number, number][] = [
-  [0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [0, 3], [1, 3],
-];
-
-interface LetterGlyph {
-  cols: number;
-  rows: number;
-  dots: [number, number][];
-}
-
-function toGlyph(lines: readonly string[]): LetterGlyph {
-  const dots: [number, number][] = [];
-  let cols = 0;
-  lines.forEach((line, row) => {
-    const chars = Array.from(line);
-    cols = Math.max(cols, chars.length);
-    chars.forEach((char, col) => {
-      const bits = char.codePointAt(0)! - 0x2800;
-      if (bits <= 0 || bits > 0xff) return;
-      BRAILLE_DOTS.forEach(([dx, dy], bit) => {
-        if (bits & (1 << bit)) dots.push([col * CELL_W + dx, row * CELL_H + dy]);
-      });
-    });
-  });
-  return { cols, rows: lines.length, dots };
-}
-
-const glyphs = kiroLogoLetters.map(toGlyph);
+// Blank space between wrapped lines: one terminal row
+const LINE_GAP_DOTS = 4;
+// Long names shrink so the splash never grows past this many lines' height
+const MAX_LINES_AT_FULL_SIZE = 2;
 
 // Matches the reveal in kiro-cli: start empty, add one letter per tick.
 // Skipped entirely when the user prefers reduced motion.
@@ -68,42 +42,72 @@ function useRevealCount(total: number, animate: boolean) {
 }
 
 interface KiroLogoProps {
+  // Text to spell in the Kiro font; the original KIRO splash when empty
+  text?: string | null;
   animate?: boolean;
 }
 
-export function KiroLogo({ animate = true }: KiroLogoProps) {
-  const visible = useRevealCount(glyphs.length, animate);
+export function KiroLogo({ text, animate = true }: KiroLogoProps) {
+  const lines = useMemo(() => layoutSplash(text), [text]);
+  const total = lines.reduce((sum, line) => sum + line.length, 0);
+  const visible = useRevealCount(total, animate);
+  const widest = Math.max(...lines.map(splashLineWidth));
+  const heightScale = Math.min(1, MAX_LINES_AT_FULL_SIZE / lines.length);
+  const label = (text && normalizeSplashText(text)) || 'KIRO';
+
+  let index = 0;
 
   return (
-    <div
-      role="img"
-      aria-label="KIRO"
-      className="flex flex-row justify-center"
-      // 1 terminal column = 0.55em; scales the whole logo with the viewport
-      style={{ fontSize: 'clamp(9px, 2.6vw, 14px)', height: `${glyphs[0].rows * 1.1}em` }}
-    >
-      {glyphs.slice(0, visible).map((glyph, i) => (
-        <svg
-          key={i}
-          aria-hidden="true"
-          viewBox={`0 0 ${glyph.cols * CELL_W} ${glyph.rows * CELL_H}`}
-          width={`${glyph.cols * 0.55}em`}
-          height={`${glyph.rows * 1.1}em`}
-          style={{ marginRight: `${kiroLogoLetterGaps[i] * 0.55}em` }}
-          fill={colors.logo}
-        >
-          {glyph.dots.map(([x, y]) => (
-            <rect
-              key={`${x}-${y}`}
-              x={x + (1 - DOT) / 2}
-              y={y + (1 - DOT) / 2}
-              width={DOT}
-              height={DOT}
-              rx={0.08}
-            />
-          ))}
-        </svg>
-      ))}
+    <div role="img" aria-label={label} style={{ containerType: 'inline-size' }}>
+      {/* Scales with the viewport, and shrinks further so the widest line fits */}
+      <div
+        style={{
+          fontSize: `min(calc(clamp(9px, 2.6vw, 14px) * ${heightScale}), calc(100cqw / ${widest * DOT_EM}))`,
+        }}
+      >
+        {lines.map((line, row) => (
+          <div
+            key={row}
+            className="flex flex-row justify-center"
+            style={{
+              height: `${line[0].dots.length * DOT_EM}em`,
+              marginTop: row > 0 ? `${LINE_GAP_DOTS * DOT_EM}em` : undefined,
+            }}
+          >
+            {line.map((letter, i) => {
+              if (index++ >= visible) return null;
+              const cols = letter.dots[0].length;
+              const rows = letter.dots.length;
+              return (
+                <svg
+                  key={i}
+                  aria-hidden="true"
+                  viewBox={`0 0 ${cols} ${rows}`}
+                  width={`${cols * DOT_EM}em`}
+                  height={`${rows * DOT_EM}em`}
+                  style={{ marginRight: i < line.length - 1 ? `${letter.gapAfter * DOT_EM}em` : undefined }}
+                  fill={colors.logo}
+                >
+                  {letter.dots.flatMap((dotRow, y) =>
+                    dotRow.map((on, x) =>
+                      on ? (
+                        <rect
+                          key={`${x}-${y}`}
+                          x={x + (1 - DOT) / 2}
+                          y={y + (1 - DOT) / 2}
+                          width={DOT}
+                          height={DOT}
+                          rx={0.08}
+                        />
+                      ) : null,
+                    ),
+                  )}
+                </svg>
+              );
+            })}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
