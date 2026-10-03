@@ -1,7 +1,9 @@
 import { CommandDefinition } from './types';
 
 export const commands: CommandDefinition[] = [
-  // Content commands (portfolio)
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PORTFOLIO COMMANDS (CV/Resume content)
+  // ═══════════════════════════════════════════════════════════════════════════
   { name: '/help', aliases: ['/h', '/?'], description: 'List all available commands', category: 'content' },
   { name: '/about', aliases: ['/summary', '/whoami'], description: 'About me — summary & role', category: 'content' },
   { name: '/experience', aliases: ['/work', '/exp'], description: 'Work history timeline', category: 'content' },
@@ -9,26 +11,74 @@ export const commands: CommandDefinition[] = [
   { name: '/education', aliases: ['/edu'], description: 'Education background', category: 'content' },
   { name: '/certs', aliases: ['/certifications'], description: 'Professional certifications', category: 'content' },
   { name: '/contact', aliases: ['/links', '/socials'], description: 'Contact info & social links', category: 'content' },
-  { name: '/model', aliases: ['/models', '/roles'], description: 'Career roles as "models"', category: 'content' },
   { name: '/languages', aliases: ['/lang'], description: 'Languages spoken', category: 'content' },
-  { name: '/resume', aliases: ['/pdf', '/download'], description: 'View resume info', category: 'content' },
+  { name: '/resume', aliases: ['/pdf', '/download'], description: 'Download resume as PDF', category: 'content' },
 
-  // System commands (Kiro-style)
-  { name: '/clear', aliases: ['/cls', '/quit', '/exit'], description: 'Clear terminal', category: 'system' },
-  { name: '/copy', aliases: [], description: 'Copy the last response to your clipboard', category: 'system' },
-  { name: '/status', aliases: [], description: 'Portfolio status & stats', category: 'system' },
-  { name: '/version', aliases: ['/v'], description: 'Version info', category: 'system' },
-  { name: '/compact', aliases: [], description: 'Compact context (simulated)', category: 'system' },
-  { name: '/context', aliases: [], description: 'Show current context', category: 'system' },
-  { name: '/rewind', aliases: [], description: 'Rewind conversation', category: 'system' },
-  { name: '/guide', aliases: [], description: 'Ask about commands & features', category: 'system' },
-
-  // Fun/Easter egg commands
+  // ═══════════════════════════════════════════════════════════════════════════
+  // KIRO CLI CORE COMMANDS (replicated from real Kiro CLI)
+  // ═══════════════════════════════════════════════════════════════════════════
+  
+  // Session & Navigation
+  { name: '/clear', aliases: ['/cls'], description: 'Clear terminal output', category: 'system' },
+  { name: '/quit', aliases: ['/exit', '/q'], description: 'Exit session', category: 'system' },
+  { name: '/compact', aliases: [], description: 'Compact conversation context', category: 'system' },
+  { name: '/rewind', aliases: [], description: 'Rewind to previous checkpoint', category: 'system' },
+  { name: '/checkpoint', aliases: [], description: 'Create a conversation checkpoint', category: 'system' },
+  
+  // Model & Agent
+  { name: '/model', aliases: ['/models'], description: 'Switch career model', category: 'system' },
+  { name: '/agent', aliases: [], description: 'Show current agent configuration', category: 'system' },
+  { name: '/effort', aliases: [], description: 'Set task effort level', category: 'system' },
+  
+  // Context & Memory
+  { name: '/context', aliases: [], description: 'Show current context window', category: 'system' },
+  { name: '/knowledge', aliases: ['/kb'], description: 'Query knowledge base', category: 'system' },
+  { name: '/memories', aliases: [], description: 'View stored memories', category: 'system' },
+  
+  // Tools & Config
+  { name: '/tools', aliases: [], description: 'List available tools', category: 'system' },
+  { name: '/mcp', aliases: [], description: 'MCP server status', category: 'system' },
+  { name: '/config', aliases: ['/settings'], description: 'View configuration', category: 'system' },
+  { name: '/hooks', aliases: [], description: 'List active hooks', category: 'system' },
+  { name: '/steering', aliases: [], description: 'Show steering rules', category: 'system' },
+  
+  // Session Management  
+  { name: '/sessions', aliases: [], description: 'List recent sessions', category: 'system' },
+  { name: '/save', aliases: [], description: 'Save current session', category: 'system' },
+  { name: '/load', aliases: [], description: 'Load a saved session', category: 'system' },
+  { name: '/copy', aliases: [], description: 'Copy last response to clipboard', category: 'system' },
+  { name: '/paste', aliases: [], description: 'Paste from clipboard', category: 'system' },
+  
+  // Info & Help
+  { name: '/version', aliases: ['/v'], description: 'Show version info', category: 'system' },
+  { name: '/status', aliases: [], description: 'Show session status', category: 'system' },
+  { name: '/guide', aliases: [], description: 'Interactive command guide', category: 'system' },
+  { name: '/changelog', aliases: [], description: 'View recent changes', category: 'system' },
+  { name: '/feedback', aliases: [], description: 'Send feedback', category: 'system' },
+  
+  // Advanced
+  { name: '/autonomous', aliases: ['/auto'], description: 'Toggle autonomous mode', category: 'system' },
+  { name: '/verbosity', aliases: [], description: 'Set output verbosity', category: 'system' },
+  { name: '/theme', aliases: [], description: 'Switch color theme', category: 'system' },
+  { name: '/todos', aliases: [], description: 'Show task list', category: 'system' },
+  { name: '/transcript', aliases: [], description: 'Export conversation transcript', category: 'system' },
+  
+  // Workflow
+  { name: '/workflow', aliases: ['/workflows'], description: 'List workflows', category: 'system' },
+  { name: '/workflow-run', aliases: [], description: 'Run a workflow', category: 'system' },
+  { name: '/workflow-status', aliases: [], description: 'Check workflow status', category: 'system' },
+  
+  // Spawn & Tangent
+  { name: '/spawn', aliases: [], description: 'Spawn a sub-agent', category: 'system' },
+  { name: '/tangent', aliases: [], description: 'Start a tangent conversation', category: 'system' },
+  
+  // ═══════════════════════════════════════════════════════════════════════════
+  // FUN / EASTER EGG COMMANDS
+  // ═══════════════════════════════════════════════════════════════════════════
   { name: '/cost', aliases: [], description: 'Cost analysis (humorous)', category: 'fun' },
-  { name: '/doctor', aliases: [], description: 'Run diagnostics', category: 'fun' },
+  { name: '/doctor', aliases: [], description: 'Run skill diagnostics', category: 'fun' },
   { name: '/usage', aliases: [], description: 'Session usage stats', category: 'fun' },
   { name: '/init', aliases: [], description: 'Generate KIRO.md', category: 'fun' },
-  { name: '/stats', aliases: [], description: 'Session statistics', category: 'fun' },
 ];
 
 export function findCommand(input: string): CommandDefinition | null {
