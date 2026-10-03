@@ -201,6 +201,39 @@ function getReasoningLevel(): ReasoningLevel | undefined {
   return undefined;
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// RESPONSE FILTERING
+// ═══════════════════════════════════════════════════════════════════════════
+
+// OpenRouter's free router sometimes routes to content safety models (LlamaGuard, Nemotron)
+// that return classification outputs instead of conversational responses.
+// These patterns detect such responses so we can handle them gracefully.
+const SAFETY_MODEL_PATTERNS = [
+  /^(User|Response)\s*Safety\s*:\s*(safe|unsafe)/im,
+  /^safe$/im,
+  /^unsafe\s*\n?S\d+/im,  // LlamaGuard format: "unsafe\nS1" or "unsafe\nS1,S2"
+  /^\s*{\s*"?safe"?\s*:\s*(true|false)/i,  // JSON format: {"safe": true}
+];
+
+const FALLBACK_MESSAGE = "I apologize, but I'm having trouble responding right now. Please try again, or use one of the slash commands like /about, /skills, or /experience to learn more about me.";
+
+/**
+ * Check if the response looks like a content safety classification
+ * instead of a real conversational response.
+ */
+function isSafetyModelResponse(text: string): boolean {
+  const trimmed = text.trim();
+  
+  // Very short responses that match safety patterns
+  if (trimmed.length < 100) {
+    return SAFETY_MODEL_PATTERNS.some(pattern => pattern.test(trimmed));
+  }
+  
+  // Check if the response starts with safety classification
+  const firstLine = trimmed.split('\n')[0];
+  return SAFETY_MODEL_PATTERNS.some(pattern => pattern.test(firstLine));
+}
+
 function jsonResponse(body: unknown, status: number, extraHeaders?: Record<string, string>) {
   return new Response(JSON.stringify(body), {
     status,
@@ -294,20 +327,74 @@ export async function POST(req: Request) {
         console.log(`[chat] Request started | callId=${callId} | model=${modelId} | ip=${ip}${reasoning ? ` | reasoning=${reasoning}` : ''}`);
       },
       onFinish: async ({ text, usage, finishReason }) => {
-        console.log(`[chat] Request finished | callId=${callId} | reason=${finishReason} | tokens=${usage?.totalTokens || 'unknown'}`);
+        // Check if this looks like a content safety model response
+        const wasSafetyResponse = isSafetyModelResponse(text);
+        
+        if (wasSafetyResponse) {
+          console.warn(`[chat] Safety model response detected | callId=${callId} | response="${text.substring(0, 50)}..."`);
+        }
+        
+        console.log(`[chat] Request finished | callId=${callId} | reason=${finishReason} | tokens=${usage?.totalTokens || 'unknown'}${wasSafetyResponse ? ' | safety_model=true' : ''}`);
         
         // Log telemetry if enabled
         if (telemetry) {
-          telemetry.setResponse(text);
+          telemetry.setResponse(wasSafetyResponse ? `[SAFETY_MODEL] ${text}` : text);
           telemetry.setUsage(usage);
-          telemetry.setFinishReason(finishReason);
+          telemetry.setFinishReason(wasSafetyResponse ? 'safety_model_filtered' : finishReason);
           await telemetry.flush();
         }
       },
     });
 
-    const textStream = toTextStream({ stream: result.stream });
-    return createTextStreamResponse({ stream: textStream });
+    // Transform the stream to filter out safety model responses
+    const transformedStream = new TransformStream<string, string>({
+      transform(chunk, controller) {
+        controller.enqueue(chunk);
+      },
+    });
+
+    // Collect the full response to check for safety model output
+    let fullResponse = '';
+    const originalStream = toTextStream({ stream: result.stream });
+    const reader = originalStream.getReader();
+    const writer = transformedStream.writable.getWriter();
+    
+    // Process the stream
+    (async () => {
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          const text = typeof value === 'string' ? value : new TextDecoder().decode(value);
+          fullResponse += text;
+          
+          // If we've accumulated enough to detect a safety model response, check it
+          if (fullResponse.length < 150) {
+            // Buffer small responses to check the pattern
+            continue;
+          }
+          
+          // Once we have enough content, start streaming
+          await writer.write(text);
+        }
+        
+        // At the end, check if the full response was a safety model output
+        if (isSafetyModelResponse(fullResponse)) {
+          // Replace with fallback message
+          await writer.write(FALLBACK_MESSAGE);
+        } else if (fullResponse.length < 150) {
+          // Stream any buffered content that wasn't a safety response
+          await writer.write(fullResponse);
+        }
+        
+        await writer.close();
+      } catch (error) {
+        await writer.abort(error);
+      }
+    })();
+
+    return createTextStreamResponse({ stream: transformedStream.readable });
 
   } catch (error: unknown) {
     // AI SDK 7: Handle timeout errors
