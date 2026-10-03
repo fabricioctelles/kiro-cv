@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Analytics } from '@vercel/analytics/next';
+import { GoogleAnalytics } from '@/components/GoogleAnalytics';
 import './globals.css';
 import { siteConfig } from '@/config/site';
 
@@ -34,6 +35,7 @@ export default function RootLayout({
       <body className="bg-bg text-text font-mono antialiased h-screen overflow-hidden">
         {children}
         <Analytics />
+        <GoogleAnalytics />
       </body>
     </html>
   );
