@@ -167,7 +167,7 @@ See [docs/DEV.md](docs/DEV.md) for the full developer manual:
 ---
 
 <p align="center">
-  Originally created by <a href="https://github.com/ambaena">Alfonso Baena</a> · Kiro-styled by <a href="https://github.com/fabriciocunhatelles">Fabricio Telles</a>
+  Originally created by <a href="https://github.com/ambaena/claude-code-resume">Alfonso Baena</a> · Kiro-styled by <a href="https://github.com/fabricioctelles">Fabricio Telles</a>
 </p>
 <p align="center">
   Built with <a href="https://kiro.dev">Kiro</a> · MIT License
