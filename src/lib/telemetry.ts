@@ -6,6 +6,8 @@
  * 
  * Enable with: TELEMETRY_ENABLED=true
  * Custom path:  TELEMETRY_FILE=logs/chat.jsonl (default: logs/chat-telemetry.jsonl)
+ * Max size:     TELEMETRY_MAX_SIZE_MB=10 (default: 10MB, rotates when exceeded)
+ * Max files:    TELEMETRY_MAX_FILES=5 (default: 5, keeps N most recent)
  * 
  * Note: This only works on environments with persistent filesystem (Coolify, VPS, Docker).
  * On Vercel/serverless, the file will be lost between invocations.
@@ -47,6 +49,11 @@ export interface ChatTelemetryEntry {
 
 const TELEMETRY_ENABLED = process.env.TELEMETRY_ENABLED === 'true';
 const TELEMETRY_FILE = process.env.TELEMETRY_FILE || 'logs/chat-telemetry.jsonl';
+const TELEMETRY_MAX_SIZE_MB = parseInt(process.env.TELEMETRY_MAX_SIZE_MB || '10', 10);
+const TELEMETRY_MAX_FILES = parseInt(process.env.TELEMETRY_MAX_FILES || '5', 10);
+
+// Convert MB to bytes
+const MAX_FILE_SIZE_BYTES = TELEMETRY_MAX_SIZE_MB * 1024 * 1024;
 
 // Resolve path relative to project root
 const getLogFilePath = () => {
@@ -81,6 +88,70 @@ async function ensureLogDir(): Promise<void> {
   }
 }
 
+/** Get file size in bytes, returns 0 if file doesn't exist */
+async function getFileSize(filePath: string): Promise<number> {
+  try {
+    const stats = await fs.stat(filePath);
+    return stats.size;
+  } catch {
+    return 0;
+  }
+}
+
+/**
+ * Rotate log files when current file exceeds max size.
+ * 
+ * Naming scheme:
+ *   chat-telemetry.jsonl       <- current (active)
+ *   chat-telemetry.1.jsonl     <- previous
+ *   chat-telemetry.2.jsonl     <- older
+ *   ...
+ *   chat-telemetry.N.jsonl     <- oldest (deleted when N > maxFiles)
+ */
+async function rotateLogFiles(): Promise<void> {
+  const logPath = getLogFilePath();
+  const logDir = path.dirname(logPath);
+  const baseName = path.basename(logPath, '.jsonl');
+  
+  // Delete oldest file if it exists (N = maxFiles)
+  const oldestFile = path.join(logDir, `${baseName}.${TELEMETRY_MAX_FILES}.jsonl`);
+  try {
+    await fs.unlink(oldestFile);
+  } catch {
+    // File doesn't exist, that's fine
+  }
+  
+  // Shift existing rotated files: N-1 -> N, N-2 -> N-1, ..., 1 -> 2
+  for (let i = TELEMETRY_MAX_FILES - 1; i >= 1; i--) {
+    const oldFile = path.join(logDir, `${baseName}.${i}.jsonl`);
+    const newFile = path.join(logDir, `${baseName}.${i + 1}.jsonl`);
+    try {
+      await fs.rename(oldFile, newFile);
+    } catch {
+      // File doesn't exist, skip
+    }
+  }
+  
+  // Rename current file to .1.jsonl
+  const rotatedFile = path.join(logDir, `${baseName}.1.jsonl`);
+  try {
+    await fs.rename(logPath, rotatedFile);
+  } catch {
+    // Current file doesn't exist, that's fine
+  }
+}
+
+/** Check if rotation is needed and perform it */
+async function rotateIfNeeded(): Promise<void> {
+  const logPath = getLogFilePath();
+  const currentSize = await getFileSize(logPath);
+  
+  if (currentSize >= MAX_FILE_SIZE_BYTES) {
+    await rotateLogFiles();
+    console.log(`[telemetry] Rotated log file (was ${(currentSize / 1024 / 1024).toFixed(2)}MB)`);
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // PUBLIC API
 // ═══════════════════════════════════════════════════════════════════════════
@@ -107,6 +178,9 @@ export async function logChatTelemetry(entry: ChatTelemetryEntry): Promise<void>
 
   try {
     await ensureLogDir();
+    
+    // Check if rotation is needed before writing
+    await rotateIfNeeded();
     
     const logPath = getLogFilePath();
     const line = JSON.stringify(entry) + '\n';
