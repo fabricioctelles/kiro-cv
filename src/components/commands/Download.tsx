@@ -1,15 +1,16 @@
 'use client';
 
 import { colors } from '@/lib/colors';
-import { siteConfig } from '@/config/site';
+import { resume } from '@/lib/resume-data';
 
 export function Download() {
-  const url = siteConfig.url;
+  const message = resume.resume?.message ?? 'Want a more serious resume, even in PDF?';
+  const url = resume.resume?.url ?? resume.basics.url;
 
   return (
     <div className="text-xs sm:text-sm py-1">
       <div style={{ color: colors.muted }}>
-        Want a more serious resume, even in PDF?{' '}
+        {message}{' '}
         <a
           href={url}
           target="_blank"

@@ -50,6 +50,11 @@ export interface ResumeLanguage {
   fluency: string;
 }
 
+export interface ResumeDownload {
+  message: string;
+  url: string;
+}
+
 export interface Resume {
   basics: ResumeBasics;
   work: ResumeWork[];
@@ -57,6 +62,7 @@ export interface Resume {
   certificates: ResumeCertificate[];
   skills: ResumeSkill[];
   languages: ResumeLanguage[];
+  resume?: ResumeDownload;
 }
 
 export const resume: Resume = resumeJson as Resume;

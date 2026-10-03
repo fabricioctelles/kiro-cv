@@ -5,6 +5,10 @@
   "trustNotice": "All tools trusted · /help for commands",
   "model": "Senior Engineer 4.0",
   "folder": "~/portfolio/kiro-cv · (main)",
+  "resume": {
+    "message": "Want a more serious resume, even in PDF?",
+    "url": "https://alexchen.dev/resume"
+  },
   "login": {
     "user": "guest",
     "password": "hire-me",
