@@ -1,5 +1,7 @@
 {
   "splash": "KIRO",
+  "siteTitle": "Kiro CV",
+  "siteDescription": "Interactive CLI-style portfolio powered by Kiro",
   "welcome": "Welcome to Kiro CV!",
   "whatsNew": "AI chat, 47+ commands, and full JSON configuration.",
   "trustNotice": "All tools trusted · /help for commands",

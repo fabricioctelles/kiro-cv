@@ -56,6 +56,20 @@ export interface ResumeDownload {
 }
 
 export interface Resume {
+  splash?: string;
+  siteTitle?: string;
+  siteDescription?: string;
+  welcome?: string;
+  whatsNew?: string;
+  trustNotice?: string;
+  model?: string;
+  folder?: string;
+  login?: {
+    user: string;
+    password: string;
+    hostname: string;
+    hints?: string[];
+  };
   basics: ResumeBasics;
   work: ResumeWork[];
   education: ResumeEducation[];

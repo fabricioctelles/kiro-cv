@@ -2,26 +2,29 @@ import type { Metadata } from 'next';
 import { Analytics } from '@vercel/analytics/next';
 import { GoogleAnalytics } from '@/components/GoogleAnalytics';
 import './globals.css';
-import { siteConfig } from '@/config/site';
+import { resume } from '@/lib/resume-data';
 
-const ogTitle = `${siteConfig.name} v${siteConfig.version}`;
+const siteTitle = resume.siteTitle || 'Terminal CV';
+const siteDescription = resume.siteDescription || 'Interactive CLI-style portfolio';
+const authorName = resume.basics?.name || 'Developer';
+const siteUrl = resume.basics?.url || '';
 
 export const metadata: Metadata = {
-  title: `${siteConfig.name} - ${siteConfig.author}`,
-  description: siteConfig.description,
+  title: `${siteTitle} - ${authorName}`,
+  description: siteDescription,
   icons: {
     icon: '/favicon.ico',
   },
   openGraph: {
-    title: ogTitle,
-    description: siteConfig.description,
+    title: siteTitle,
+    description: siteDescription,
     type: 'website',
-    url: siteConfig.url,
+    url: siteUrl,
   },
   twitter: {
     card: 'summary_large_image',
-    title: ogTitle,
-    description: siteConfig.description,
+    title: siteTitle,
+    description: siteDescription,
   },
 };
 
