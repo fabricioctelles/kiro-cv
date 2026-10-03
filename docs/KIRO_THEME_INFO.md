@@ -1,6 +1,6 @@
 # Kiro CLI Theme Information
 
-Extracted from `~/.local/share/kiro-cli/tui.js` and `/home/fabricio/.local/bin/kiro-cli` binary.
+Extracted from `~/.local/share/kiro-cli/tui.js` and `~/.local/bin/kiro-cli` binary.
 
 ## Official Colors
 
