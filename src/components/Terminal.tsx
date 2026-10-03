@@ -524,8 +524,13 @@ export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultMo
     const entryId = crypto.randomUUID();
     setIsAiLoading(true);
 
-    // Add user message to conversation history
-    chatMessagesRef.current.push({ role: 'user', content: message });
+    // Add user message to conversation history (rolled back on failure so a
+    // rejected message is not re-sent and doesn't poison the session)
+    const userMessage = { role: 'user' as const, content: message };
+    chatMessagesRef.current.push(userMessage);
+    const rollback = () => {
+      chatMessagesRef.current = chatMessagesRef.current.filter((m) => m !== userMessage);
+    };
     // Keep last 20 messages to limit token cost
     if (chatMessagesRef.current.length > 20) {
       chatMessagesRef.current = chatMessagesRef.current.slice(-20);
@@ -550,6 +555,18 @@ export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultMo
       });
 
       if (!response.ok) {
+        rollback();
+        if (response.status === 400 || response.status === 413) {
+          setHistory((prev) =>
+            prev.map((e) =>
+              e.id === entryId
+                ? { ...e, aiContent: "I can't answer that one. Ask me about my experience, skills or projects — or try /help.", isStreaming: false }
+                : e,
+            ),
+          );
+          setIsAiLoading(false);
+          return;
+        }
         if (response.status === 429) {
           setHistory((prev) =>
             prev.map((e) =>
@@ -594,6 +611,7 @@ export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultMo
       // Add assistant response to conversation history
       chatMessagesRef.current.push({ role: 'assistant', content: accumulated });
     } catch (err: unknown) {
+      rollback();
       if (err instanceof Error && err.name === 'AbortError') {
         setHistory((prev) =>
           prev.map((e) =>

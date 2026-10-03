@@ -2,6 +2,8 @@ import type { NextConfig } from 'next';
 
 // Security headers applied by the app itself, so protection holds regardless
 // of the hosting/proxy setup (Vercel, Cloudflare, Coolify/Traefik, etc.).
+const isDev = process.env.NODE_ENV !== 'production';
+
 const securityHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'X-Frame-Options', value: 'DENY' },
@@ -14,7 +16,7 @@ const securityHeaders = [
     value: [
       "default-src 'self'",
       // Next.js injects inline bootstrap scripts; GA + Vercel Analytics are allowed explicitly.
-      "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://va.vercel-scripts.com",
+      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://www.googletagmanager.com https://va.vercel-scripts.com`,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data:",

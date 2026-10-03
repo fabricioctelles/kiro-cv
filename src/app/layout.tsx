@@ -37,7 +37,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-bg text-text font-mono antialiased h-screen overflow-hidden">
         {children}
-        <Analytics />
+        {process.env.VERCEL && <Analytics />}
         <GoogleAnalytics />
       </body>
     </html>

@@ -13,7 +13,7 @@ test.describe('Autocomplete', () => {
     await page.waitForTimeout(300);
     
     // SlashMenu renders command options as divs with command names
-    const helpOption = page.getByText('/help');
+    const helpOption = page.getByText('/help', { exact: true });
     await expect(helpOption).toBeVisible({ timeout: 2000 });
   });
 
@@ -24,7 +24,7 @@ test.describe('Autocomplete', () => {
     await page.waitForTimeout(300);
     
     // Should show /help
-    await expect(page.getByText('/help')).toBeVisible({ timeout: 2000 });
+    await expect(page.getByText('/help', { exact: true })).toBeVisible({ timeout: 2000 });
   });
 
   test('arrow keys navigate autocomplete', async ({ page }) => {
@@ -38,7 +38,7 @@ test.describe('Autocomplete', () => {
     await page.waitForTimeout(100);
     
     // Verify menu still visible
-    await expect(page.getByText('/help')).toBeVisible();
+    await expect(page.getByText('/help', { exact: true })).toBeVisible();
   });
 
   test('Enter selects autocomplete item', async ({ page }) => {
@@ -63,7 +63,7 @@ test.describe('Autocomplete', () => {
     await page.waitForTimeout(300);
     
     // Verify menu is open
-    await expect(page.getByText('/help')).toBeVisible();
+    await expect(page.getByText('/help', { exact: true })).toBeVisible();
     
     await input.press('Escape');
     await page.waitForTimeout(300);

@@ -79,7 +79,7 @@ async function ensureLogDir(): Promise<void> {
   const logDir = path.dirname(logPath);
   
   try {
-    await fs.mkdir(logDir, { recursive: true });
+    await fs.mkdir(logDir, { recursive: true, mode: 0o700 });
   } catch (error) {
     // Directory might already exist, that's fine
     if ((error as NodeJS.ErrnoException).code !== 'EEXIST') {
@@ -185,7 +185,8 @@ export async function logChatTelemetry(entry: ChatTelemetryEntry): Promise<void>
     const logPath = getLogFilePath();
     const line = JSON.stringify(entry) + '\n';
     
-    await fs.appendFile(logPath, line, 'utf-8');
+    // Owner-only: the log holds visitor prompts
+    await fs.appendFile(logPath, line, { encoding: 'utf-8', mode: 0o600 });
   } catch (error) {
     // Log to console but don't throw - telemetry should never break the main flow
     console.error('[telemetry] Failed to write log:', error instanceof Error ? error.message : error);

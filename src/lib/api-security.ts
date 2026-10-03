@@ -32,3 +32,62 @@ export function getClientIp(req: Request): string {
 
   return 'unknown';
 }
+
+/**
+ * Mask an IP for logs (LGPD/GDPR data minimisation): IPv4 keeps /24,
+ * IPv6 keeps /48. Rate limiting still uses the full IP, in memory only.
+ */
+export function anonymizeIp(ip: string): string {
+  if (ip.includes('.') && !ip.includes(':')) {
+    const parts = ip.split('.');
+    return parts.length === 4 ? `${parts.slice(0, 3).join('.')}.0` : 'unknown';
+  }
+  if (ip.includes(':')) {
+    return `${ip.split(':').slice(0, 3).join(':')}::`;
+  }
+  return 'unknown';
+}
+
+/**
+ * Browsers send `Sec-Fetch-Site`; reject cross-site calls so other sites
+ * cannot embed the chat and spend our LLM quota through visitors' browsers.
+ * Non-browser clients omit the header and are covered by rate limiting.
+ */
+export function isCrossSiteRequest(req: Request): boolean {
+  return req.headers.get('sec-fetch-site') === 'cross-site';
+}
+
+/**
+ * Read a JSON body enforcing a real byte cap — `Content-Length` can be
+ * absent (chunked) or wrong, so count bytes while streaming.
+ */
+export async function readJsonWithLimit(
+  req: Request,
+  maxBytes: number,
+): Promise<{ ok: true; body: unknown } | { ok: false; status: 400 | 413 }> {
+  if (!req.body) return { ok: false, status: 400 };
+  const reader = req.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > maxBytes) {
+      await reader.cancel();
+      return { ok: false, status: 413 };
+    }
+    chunks.push(value);
+  }
+  const bytes = new Uint8Array(size);
+  let offset = 0;
+  for (const c of chunks) {
+    bytes.set(c, offset);
+    offset += c.byteLength;
+  }
+  try {
+    return { ok: true, body: JSON.parse(new TextDecoder().decode(bytes)) };
+  } catch {
+    return { ok: false, status: 400 };
+  }
+}

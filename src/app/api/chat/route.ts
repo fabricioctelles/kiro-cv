@@ -2,7 +2,7 @@ import { createOpenAI } from '@ai-sdk/openai';
 import { streamText, toTextStream, createTextStreamResponse } from 'ai';
 // System prompt: src/lib/system-prompt.ts
 import { SYSTEM_PROMPT } from '@/lib/system-prompt';
-import { getClientIp } from '@/lib/api-security';
+import { anonymizeIp, getClientIp, isCrossSiteRequest, readJsonWithLimit } from '@/lib/api-security';
 import { createTelemetryCollector, generateCallId, isTelemetryEnabled } from '@/lib/telemetry';
 
 export const runtime = 'nodejs';
@@ -22,6 +22,7 @@ const MAX_BODY_BYTES = 32 * 1024;    // reject oversized request bodies early
 const MAX_MESSAGE_CHARS = 2000;      // per message
 const MAX_TOTAL_CHARS = 8000;        // whole conversation
 const MAX_MESSAGES = 30;
+const MAX_RATE_LIMIT_ENTRIES = 10_000; // bound memory under IP churn
 
 // Only these roles may ever reach the model. Without this, a caller could
 // inject a `system`/`tool` message and override the portfolio persona.
@@ -170,6 +171,12 @@ function validateInput(messages: Array<{ role: string; content: string }>): { va
     }
   }
 
+  // The model must always be answering a visitor, not continuing a forged
+  // assistant turn.
+  if (messages[messages.length - 1].role !== 'user') {
+    return { valid: false, reason: 'Last message must be from the user' };
+  }
+
   return { valid: true };
 }
 
@@ -243,6 +250,10 @@ function jsonResponse(body: unknown, status: number, extraHeaders?: Record<strin
 
 export async function POST(req: Request) {
   try {
+    if (isCrossSiteRequest(req)) {
+      return jsonResponse({ error: 'Forbidden' }, 403);
+    }
+
     // Get client IP (proxy/CDN aware; never trusts the leftmost XFF hop)
     const ip = getClientIp(req);
 
@@ -256,8 +267,8 @@ export async function POST(req: Request) {
       );
     }
 
-    // Cleanup old rate limit entries occasionally
-    if (Math.random() < 0.01) {
+    // Cleanup old rate limit entries occasionally (or when the map grows large)
+    if (Math.random() < 0.01 || rateLimitStore.size > MAX_RATE_LIMIT_ENTRIES) {
       cleanupRateLimitStore();
     }
 
@@ -268,12 +279,13 @@ export async function POST(req: Request) {
     }
 
     // Parse and validate input
-    let body: unknown;
-    try {
-      body = await req.json();
-    } catch {
-      return jsonResponse({ error: 'Invalid JSON body' }, 400);
+    const parsed = await readJsonWithLimit(req, MAX_BODY_BYTES);
+    if (!parsed.ok) {
+      return parsed.status === 413
+        ? jsonResponse({ error: 'Request too large' }, 413)
+        : jsonResponse({ error: 'Invalid JSON body' }, 400);
     }
+    const body = parsed.body;
 
     const { messages } = (body ?? {}) as { messages?: Array<{ role: string; content: string }> };
 
@@ -300,7 +312,7 @@ export async function POST(req: Request) {
 
     // Set up telemetry collector (only active if TELEMETRY_ENABLED=true)
     const telemetry = isTelemetryEnabled()
-      ? createTelemetryCollector({ callId, model, ip, prompt })
+      ? createTelemetryCollector({ callId, model, ip: anonymizeIp(ip), prompt })
       : null;
 
     // AI SDK 7: Get reasoning level from env (if configured)
@@ -310,7 +322,9 @@ export async function POST(req: Request) {
       model: openai(model),
       instructions: SYSTEM_PROMPT,
       messages: typedMessages,
-      maxOutputTokens: 300,
+      // 300 truncated mid-sentence in PT-BR (longer tokens); the prompt keeps
+      // answers to 2-4 sentences, so this is a ceiling, not the typical size.
+      maxOutputTokens: 500,
       
       // AI SDK 7: Provider-agnostic reasoning control
       // Only included if LLM_REASONING is set in env
@@ -324,7 +338,7 @@ export async function POST(req: Request) {
       
       // AI SDK 7: Lifecycle callbacks for observability
       onStart: ({ modelId }) => {
-        console.log(`[chat] Request started | callId=${callId} | model=${modelId} | ip=${ip}${reasoning ? ` | reasoning=${reasoning}` : ''}`);
+        console.log(`[chat] Request started | callId=${callId} | model=${modelId} | ip=${anonymizeIp(ip)}${reasoning ? ` | reasoning=${reasoning}` : ''}`);
       },
       onFinish: async ({ text, usage, finishReason }) => {
         // Check if this looks like a content safety model response
@@ -361,6 +375,12 @@ export async function POST(req: Request) {
     
     // Process the stream
     (async () => {
+      // Buffer until we have enough text to classify, then flush the whole
+      // buffer once and stream the rest. If the buffer looks like a safety
+      // model output, keep draining (so onFinish/telemetry still run) but
+      // send the fallback message instead.
+      let flushed = false;
+      let blocked = false;
       try {
         while (true) {
           const { done, value } = await reader.read();
@@ -369,23 +389,29 @@ export async function POST(req: Request) {
           const text = typeof value === 'string' ? value : new TextDecoder().decode(value);
           fullResponse += text;
           
-          // If we've accumulated enough to detect a safety model response, check it
-          if (fullResponse.length < 150) {
-            // Buffer small responses to check the pattern
+          if (blocked) continue;
+          if (flushed) {
+            await writer.write(text);
             continue;
           }
           
-          // Once we have enough content, start streaming
-          await writer.write(text);
+          // Buffer small responses to check the pattern
+          if (fullResponse.length < 150) continue;
+          
+          if (isSafetyModelResponse(fullResponse)) {
+            blocked = true;
+            continue;
+          }
+          
+          flushed = true;
+          await writer.write(fullResponse);
         }
         
-        // At the end, check if the full response was a safety model output
-        if (isSafetyModelResponse(fullResponse)) {
-          // Replace with fallback message
+        if (blocked) {
           await writer.write(FALLBACK_MESSAGE);
-        } else if (fullResponse.length < 150) {
-          // Stream any buffered content that wasn't a safety response
-          await writer.write(fullResponse);
+        } else if (!flushed) {
+          // Short response: never streamed yet, so classify it now
+          await writer.write(isSafetyModelResponse(fullResponse) ? FALLBACK_MESSAGE : fullResponse);
         }
         
         await writer.close();

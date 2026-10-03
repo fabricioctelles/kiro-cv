@@ -1,4 +1,11 @@
 import { test, expect, Page } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+// Expected texts come from resume.json, so the suite works with any CV/language
+const resume = JSON.parse(readFileSync(join(process.cwd(), 'resume.json'), 'utf8'));
+const welcomeText: string | undefined = resume.welcome;
+const trustText: string | undefined = resume.trustNotice?.split('·')[0]?.trim();
 
 // Helper to collect console errors
 async function collectConsoleErrors(page: Page) {
@@ -51,7 +58,7 @@ test.describe('Startup & Initialization', () => {
     await page.goto('/');
     
     // Welcome message should be visible
-    await expect(page.getByText(/welcome/i)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(welcomeText ? welcomeText.slice(0, 20) : /welcome/i).first()).toBeVisible({ timeout: 10000 });
     
     // What's new section
     await expect(page.getByText(/what's new/i)).toBeVisible();
@@ -71,7 +78,7 @@ test.describe('Startup & Initialization', () => {
     await page.goto('/');
     
     // Trust notice warning
-    await expect(page.getByText(/warning|hint/i)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(trustText || /warning|hint/i).first()).toBeVisible({ timeout: 10000 });
   });
 
   test('input box is ready for typing', async ({ page }) => {
