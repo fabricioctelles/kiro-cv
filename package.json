@@ -7,7 +7,7 @@
     "prebuild": "tsx scripts/fetch-resume.ts",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint src/"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.2.0",
@@ -21,14 +21,19 @@
     "thesvg": "^3.3.10"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.7",
+    "@next/eslint-plugin-next": "^16.3.8",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^22.0.0",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "eslint": "^9",
+    "eslint": "^10.11.0",
     "eslint-config-next": "16.3.8",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.71.0"
   }
 }

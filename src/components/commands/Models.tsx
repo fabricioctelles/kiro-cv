@@ -16,7 +16,7 @@ export function Models({
   selectedIndex,
   currentIndex,
   onConfirm,
-  onCancel,
+  onCancel: _onCancel,
 }: ModelsProps) {
   return (
     <div className="text-xs sm:text-sm py-2">

@@ -26,7 +26,7 @@ export function useCommandHistory() {
     setIndex(-1);
   }, []);
 
-  const navigateUp = useCallback((currentInput: string): string | null => {
+  const navigateUp = useCallback((_currentInput: string): string | null => {
     const nextIndex = index + 1;
     if (nextIndex >= history.length) return null;
     setIndex(nextIndex);

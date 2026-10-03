@@ -15,7 +15,7 @@ interface HelpOutputProps {
 
 const MAX_VISIBLE = 6;
 
-export function HelpOutput({ selectedIndex, onSelect, onCancel }: HelpOutputProps) {
+export function HelpOutput({ selectedIndex, onSelect, onCancel: _onCancel }: HelpOutputProps) {
   // Calculate visible window that follows the selection
   let start = 0;
   if (selectedIndex >= MAX_VISIBLE) {
