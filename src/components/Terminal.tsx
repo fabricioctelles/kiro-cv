@@ -984,7 +984,7 @@ export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultMo
                       className="hover:opacity-80 transition-opacity"
                       title="ft.ia.br"
                     >
-                      <svg width="14" height="14" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" className="inline-block">
+                      <svg width="14" height="14" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" className="inline-block">
                         <rect width="512" height="74" fill="currentColor"/>
                         <rect y="146" width="512" height="74" fill="currentColor"/>
                         <rect y="292" width="512" height="74" fill="currentColor"/>
