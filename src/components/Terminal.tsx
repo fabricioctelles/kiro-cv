@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef, ReactNode } from 'react';
+import { useState, useCallback, useEffect, useRef, ReactNode, startTransition } from 'react';
+import { ViewTransition } from 'react';
 import { WelcomeScreen } from './WelcomeScreen';
 import { InputBox } from './InputBox';
 import { SlashMenu } from './SlashMenu';
@@ -204,7 +205,9 @@ export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultMo
   }, [modelSelectorOpen, modelSelectorIndex, helpSelectorOpen, helpSelectorIndex]);
 
   const addEntry = useCallback((entry: Omit<HistoryEntry, 'id'>) => {
-    setHistory((prev) => [...prev, { ...entry, id: crypto.randomUUID() }]);
+    startTransition(() => {
+      setHistory((prev) => [...prev, { ...entry, id: crypto.randomUUID() }]);
+    });
   }, []);
 
   const handleClear = useCallback(() => {
@@ -856,7 +859,7 @@ export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultMo
       {/* Scrollable content — includes history AND input */}
       <div
         ref={containerRef}
-        className="flex-1 overflow-y-auto px-2 sm:px-4 py-2 sm:py-4"
+        className="flex-1 overflow-y-auto px-2 sm:px-4 py-2 sm:py-4 scrollbar-thin scrollbar-thumb-brand-muted scrollbar-track-surface"
       >
         <div className="max-w-[1100px] mx-auto">
           {history.map((entry, index) => {
@@ -865,39 +868,49 @@ export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultMo
 
             if (entry.type === 'welcome') {
               if (connecting) return <ConnectingLine key={entry.id} />;
-              return <WelcomeScreen key={entry.id} splashName={splashName} welcome={welcome} whatsNew={whatsNew} />;
+              return (
+                <ViewTransition key={entry.id}>
+                  <div className="welcome-entry">
+                    <WelcomeScreen splashName={splashName} welcome={welcome} whatsNew={whatsNew} />
+                  </div>
+                </ViewTransition>
+              );
             }
 
             if (entry.type === 'command') {
               return (
-                <div key={entry.id} className="mb-[1.5em] text-xs sm:text-sm leading-[1.5em]">
-                  <UserPrompt text={entry.input ?? ''} active={active} />
-                  {/* Command output — panels render without a message bar */}
-                  {entry.output}
-                </div>
+                <ViewTransition key={entry.id}>
+                  <div className="mb-[1.5em] text-xs sm:text-sm leading-[1.5em] command-entry">
+                    <UserPrompt text={entry.input ?? ''} active={active} />
+                    {/* Command output — panels render without a message bar */}
+                    {entry.output}
+                  </div>
+                </ViewTransition>
               );
             }
 
             if (entry.type === 'ai') {
               return (
-                <div key={entry.id} className="mb-[1.5em] text-xs sm:text-sm leading-[1.5em]">
-                  <UserPrompt text={entry.input ?? ''} active={active} />
-                  {/* AI response — the indicator gives way once text streams in */}
-                  {entry.isStreaming && !entry.aiContent ? (
-                    <ThinkingIndicator showTip />
-                  ) : (
-                    entry.aiContent && (
-                      <MessageBar active={active}>
-                        <MarkdownOutput content={entry.aiContent} />
+                <ViewTransition key={entry.id}>
+                  <div className="mb-[1.5em] text-xs sm:text-sm leading-[1.5em] ai-response-entry">
+                    <UserPrompt text={entry.input ?? ''} active={active} />
+                    {/* AI response — the indicator gives way once text streams in */}
+                    {entry.isStreaming && !entry.aiContent ? (
+                      <ThinkingIndicator showTip />
+                    ) : (
+                      entry.aiContent && (
+                        <MessageBar active={active}>
+                          <MarkdownOutput content={entry.aiContent} />
+                        </MessageBar>
+                      )
+                    )}
+                    {entry.cancelled && (
+                      <MessageBar active color={colors.error}>
+                        <span className="italic" style={{ color: colors.muted }}>Cancelled</span>
                       </MessageBar>
-                    )
-                  )}
-                  {entry.cancelled && (
-                    <MessageBar active color={colors.error}>
-                      <span className="italic" style={{ color: colors.muted }}>Cancelled</span>
-                    </MessageBar>
-                  )}
-                </div>
+                    )}
+                  </div>
+                </ViewTransition>
               );
             }
 
@@ -906,27 +919,31 @@ export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultMo
 
           {/* Help selector — rendered live */}
           {helpSelectorOpen && (
-            <Help
-              selectedIndex={helpSelectorIndex}
-              onSelect={(command) => {
-                setHelpSelectorOpen(false);
-                handleSubmit(command);
-              }}
-              onCancel={() => setHelpSelectorOpen(false)}
-            />
+            <div className="selector-entry">
+              <Help
+                selectedIndex={helpSelectorIndex}
+                onSelect={(command) => {
+                  setHelpSelectorOpen(false);
+                  handleSubmit(command);
+                }}
+                onCancel={() => setHelpSelectorOpen(false)}
+              />
+            </div>
           )}
 
           {/* Model selector — rendered live */}
           {modelSelectorOpen && (
-            <Models
-              selectedIndex={modelSelectorIndex}
-              currentIndex={careerModels.findIndex(m => m.name === currentModel)}
-              onConfirm={(index) => {
-                setCurrentModel(careerModels[index]?.name ?? 'Default');
-                setModelSelectorOpen(false);
-              }}
-              onCancel={() => setModelSelectorOpen(false)}
-            />
+            <div className="selector-entry">
+              <Models
+                selectedIndex={modelSelectorIndex}
+                currentIndex={careerModels.findIndex(m => m.name === currentModel)}
+                onConfirm={(index) => {
+                  setCurrentModel(careerModels[index]?.name ?? 'Default');
+                  setModelSelectorOpen(false);
+                }}
+                onCancel={() => setModelSelectorOpen(false)}
+              />
+            </div>
           )}
 
           {/* Prompt area, laid out like kiro-cli: trust notice, divider,

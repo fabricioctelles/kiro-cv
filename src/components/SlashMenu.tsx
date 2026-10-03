@@ -27,7 +27,7 @@ export function SlashMenu({ input, selectedIndex, onSelect }: SlashMenuProps) {
   const visibleMatches = allMatches.slice(start, start + maxVisible);
 
   return (
-    <div className="text-xs sm:text-sm py-1">
+    <div className="text-xs sm:text-sm py-1 slash-menu-entry">
       {visibleMatches.map((cmd: CommandDefinition, i: number) => {
         const globalIndex = start + i;
         const isSelected = globalIndex === selectedIndex;

@@ -55,7 +55,7 @@ body {
   animation: blink 1s step-end infinite;
 }
 
-/* Kiro-style scrollbar */
+/* Kiro-style scrollbar (Tailwind 4.3 + webkit fallback) */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -71,6 +71,162 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-brand);
+}
+
+/* Firefox scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-brand-muted) var(--color-surface);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   @starting-style Entry Animations (CSS 2024+)
+   These create smooth entry animations when elements first appear in the DOM
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Command output entry animation */
+.command-entry {
+  animation: command-fade-in 0.2s ease-out;
+}
+
+@keyframes command-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Modern @starting-style for instant entry transitions (no keyframes needed) */
+@supports (selector(:has(*))) {
+  .starting-style-entry {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+    
+    @starting-style {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+}
+
+/* AI response streaming entry */
+.ai-response-entry {
+  animation: ai-fade-in 0.3s ease-out;
+}
+
+@keyframes ai-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Welcome screen entry */
+.welcome-entry {
+  animation: welcome-fade-in 0.4s ease-out;
+}
+
+@keyframes welcome-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Slash menu entry animation */
+.slash-menu-entry {
+  animation: menu-slide-in 0.15s ease-out;
+}
+
+@keyframes menu-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Model/Help selector entry animation */
+.selector-entry {
+  animation: selector-fade-in 0.2s ease-out;
+}
+
+@keyframes selector-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   View Transition Styles (React 19.3 <ViewTransition>)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Default view transition for command history */
+::view-transition-old(history-item) {
+  animation: history-exit 0.15s ease-in forwards;
+}
+
+::view-transition-new(history-item) {
+  animation: history-enter 0.2s ease-out;
+}
+
+@keyframes history-exit {
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes history-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* Smooth root transition */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.2s;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .command-entry,
+  .ai-response-entry,
+  .welcome-entry,
+  .slash-menu-entry,
+  .selector-entry,
+  .starting-style-entry {
+    animation: none;
+    transition: none;
+  }
+  
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none;
+  }
 }
 
 /* Selection with purple tint */
