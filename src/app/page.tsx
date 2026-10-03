@@ -2,6 +2,12 @@ import { Terminal } from '@/components/Terminal';
 import { normalizeSplashText } from '@/lib/kiro-text';
 import resumeData from '../../resume.json';
 
+interface LoginConfig {
+  user?: string;
+  password?: string;
+  hostname?: string;
+}
+
 interface ResumeConfig {
   splash?: string;
   welcome?: string;
@@ -9,6 +15,7 @@ interface ResumeConfig {
   trustNotice?: string;
   model?: string;
   folder?: string;
+  login?: LoginConfig;
 }
 
 interface HomeProps {
@@ -33,6 +40,7 @@ export default async function Home({ searchParams }: HomeProps) {
       trustNotice={config.trustNotice}
       defaultModel={config.model}
       folder={config.folder}
+      login={config.login}
     />
   );
 }

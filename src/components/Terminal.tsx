@@ -34,7 +34,9 @@ import { Doctor } from './commands/Doctor';
 import { Download } from './commands/Download';
 import { Usage } from './commands/Usage';
 import { Init } from './commands/Init';
+import { Game } from './commands/Game';
 import { Version } from './commands/Version';
+import { LoginScreen } from './LoginScreen';
 
 interface HistoryEntry {
   id: string;
@@ -49,6 +51,12 @@ interface HistoryEntry {
 // How long the simulated connection takes on first load
 const CONNECT_MS = 700;
 
+interface LoginConfig {
+  user?: string;
+  password?: string;
+  hostname?: string;
+}
+
 interface TerminalProps {
   // ?splash_name= — spelled in the Kiro font on the welcome screen
   splashName?: string;
@@ -62,9 +70,11 @@ interface TerminalProps {
   defaultModel?: string;
   // Folder path displayed in status line (e.g. "~/workspace/projects/my-project · (main)")
   folder?: string;
+  // Login screen configuration
+  login?: LoginConfig;
 }
 
-export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultModel, folder }: TerminalProps) {
+export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultModel, folder, login }: TerminalProps) {
   const [input, setInput] = useState('');
   const [history, setHistory] = useState<HistoryEntry[]>([
     { id: 'welcome', type: 'welcome' },
@@ -75,6 +85,8 @@ export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultMo
   const [isAiLoading, setIsAiLoading] = useState(false);
   // First load only: kiro-cli shows "Connecting to kiro.dev…" before the banner
   const [connecting, setConnecting] = useState(true);
+  // Login screen state
+  const [showLoginScreen, setShowLoginScreen] = useState(false);
 
   // Model selector state
   const [modelSelectorOpen, setModelSelectorOpen] = useState(false);
@@ -494,6 +506,11 @@ export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultMo
             <span style={{ color: colors.secondary }}>Use /contact to reach out!</span>
           </div>
         );
+      
+      case '/game':
+      case '/play':
+      case '/kiro-runner':
+        return <Game />;
 
       default:
         return null;
@@ -663,6 +680,15 @@ export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultMo
           return;
         }
 
+        // /quit, /exit, /q — show login screen
+        if (cmd.name === '/quit' || cmd.name === '/exit' || cmd.name === '/q') {
+          if (login?.user && login?.password) {
+            setShowLoginScreen(true);
+            setInput('');
+            return;
+          }
+        }
+
         const output = renderCommandOutput(cmd.name);
         addEntry({ type: 'command', input: trimmed, output });
       } else {
@@ -706,7 +732,7 @@ export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultMo
     }
 
     setInput('');
-  }, [input, cmdHistory, handleClear, addEntry, renderCommandOutput, handleAIChat, currentModel]);
+  }, [input, cmdHistory, handleClear, addEntry, renderCommandOutput, handleAIChat, currentModel, login]);
 
   // Process pending command from help selector
   useEffect(() => {
@@ -808,6 +834,27 @@ export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultMo
       setShowSlashMenu(false);
     }
   }, [input, showSlashMenu, menuIndex, cmdHistory, complete, handleSubmit, modelSelectorOpen, helpSelectorOpen, addEntry]);
+
+  // Handle login success — reset terminal to initial state
+  const handleLoginSuccess = useCallback(() => {
+    setShowLoginScreen(false);
+    setHistory([{ id: 'welcome', type: 'welcome' }]);
+    chatMessagesRef.current = [];
+    setConnecting(true);
+    setTimeout(() => setConnecting(false), CONNECT_MS);
+  }, []);
+
+  // Show login screen when /quit is triggered
+  if (showLoginScreen && login?.user && login?.password) {
+    return (
+      <LoginScreen
+        hostname={login.hostname || 'kiro-cv'}
+        expectedUser={login.user}
+        expectedPassword={login.password}
+        onLoginSuccess={handleLoginSuccess}
+      />
+    );
+  }
 
   return (
     <div
