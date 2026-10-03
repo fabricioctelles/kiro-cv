@@ -13,6 +13,9 @@ This document explains the architecture and how to customize the Kiro CLI-style 
 7. [AI Chat Integration](#ai-chat-integration)
 8. [Theming & Colors](#theming--colors)
 9. [Command Reference](#command-reference)
+10. [UI Animations](#ui-animations)
+11. [Telemetry](#telemetry)
+12. [Testing](#testing)
 
 ---
 
@@ -25,7 +28,7 @@ src/
 ├── app/
 │   ├── page.tsx          # Entry point - reads resume.json, passes config to Terminal
 │   ├── layout.tsx        # Root layout, metadata (siteTitle/siteDescription), Google Analytics
-│   └── api/chat/route.ts # AI chat API endpoint (OpenAI-compatible, Edge runtime)
+│   └── api/chat/route.ts # AI chat API endpoint (AI SDK 7, Edge runtime)
 ├── components/
 │   ├── Terminal.tsx      # Main terminal component - handles all state & commands
 │   ├── InputBox.tsx      # Command input field
@@ -56,16 +59,27 @@ src/
 │   ├── commands.ts       # Command definitions & matching
 │   ├── colors.ts         # Kiro color palette
 │   ├── resume-data.ts    # Resume JSON loader + resume types
-│   ├── system-prompt.ts  # AI system prompt with guardrails
+│   ├── system-prompt.ts  # AI system prompt with guardrails (humanized)
+│   ├── telemetry.ts      # JSONL logging with file rotation
+│   ├── api-security.ts   # Rate limiting and abuse detection
 │   ├── tips.ts           # Tips shown while the AI is thinking
 │   ├── kiro-logo.ts      # Braille font data for logo
 │   ├── kiro-font.ts      # Glyph definitions for custom splash text
 │   ├── kiro-text.ts      # Splash text layout & normalization
 │   └── types.ts          # Shared TypeScript interfaces (CommandDefinition, ...)
-└── hooks/
-    ├── useAutoComplete.ts
-    ├── useCommandHistory.ts
-    └── useTerminalScroll.ts
+├── hooks/
+│   ├── useAutoComplete.ts
+│   ├── useCommandHistory.ts
+│   └── useTerminalScroll.ts
+└── types/
+    └── global.d.ts       # Global type declarations (BigInt serialization, etc.)
+tests/
+└── e2e/                  # Playwright E2E tests (51 tests)
+    ├── startup.spec.ts
+    ├── commands.spec.ts
+    ├── ai-chat.spec.ts
+    ├── easter-eggs.spec.ts
+    └── ux.spec.ts
 ```
 
 ---
@@ -380,30 +394,85 @@ Render the user's input line and message blocks in the history.
 
 ## AI Chat Integration
 
-The AI chat uses the Vercel AI SDK (`@ai-sdk/openai`) with streaming on the Edge runtime. Any OpenAI-compatible provider works (OpenAI, OpenRouter, Groq, Together, local LLMs).
+The AI chat uses the Vercel AI SDK 7 (`ai` package) with streaming on the Edge runtime. Any OpenAI-compatible provider works (OpenAI, OpenRouter, Groq, Together, local LLMs).
 
 ### API Route (`src/app/api/chat/route.ts`)
 
-- Base URL: `OPENAI_BASE_URL` (default `https://api.openai.com/v1`)
-- Model: `OPENAI_MODEL` (default `gpt-4o-mini`)
-- System prompt built from resume data in `src/lib/system-prompt.ts`
+Key features:
+- **AI SDK 7 API**: Uses `instructions`, `maxOutputTokens`, `toTextStream()`
+- **Timeouts**: Configurable `totalMs` (30s) and `chunkMs` (5s) to prevent hangs
+- **Lifecycle callbacks**: `onStart` and `onEnd` for logging
+- **Reasoning control**: Optional via `LLM_REASONING` environment variable
+- **Safety filter**: Detects and replaces "User Safety: safe" responses (OpenRouter free tier)
+- **Rate limiting**: 10 req/min, 50 req/day per IP
+- **Telemetry**: Optional JSONL logging of interactions
+
+### AI SDK 7 Features Used
+
+```typescript
+const result = streamText({
+  model: openai(model),
+  instructions: SYSTEM_PROMPT,  // System prompt as first-class parameter
+  messages,
+  maxOutputTokens: 300,         // Explicit token limit
+  timeout: {
+    totalMs: 30000,             // 30s total timeout
+    chunkMs: 5000,              // 5s between chunks
+  },
+  reasoning,                    // Optional reasoning control
+  onStart({ modelId }) {
+    console.log(`[chat] Started with ${modelId}`);
+  },
+  onEnd({ usage, finishReason }) {
+    console.log(`[chat] Finished: ${finishReason}`);
+  },
+});
+
+// Stream as plain text (not data protocol)
+return new Response(result.toTextStream(), {
+  headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+});
+```
+
+### Reasoning Control
+
+Control the model's "thinking" phase via `LLM_REASONING` environment variable:
+
+| Value | Description |
+|-------|-------------|
+| `none` | Disable reasoning entirely |
+| `minimal` | Bare-minimum reasoning |
+| `low` | Fast, concise reasoning |
+| `medium` | Balanced reasoning |
+| `high` | Thorough reasoning |
+| `xhigh` | Maximum reasoning (slowest) |
+| `provider-default` | Use provider's default |
+
+Only works with models that support reasoning (Claude, Gemini, GPT-6, DeepSeek).
 
 ### Customizing AI Behavior
 
 Edit `src/lib/system-prompt.ts` to change the AI's personality, guardrails and command suggestions.
 
-### Environment Variables
+**System prompt structure (2026 best practices):**
+1. **Personality & Voice** — Defines tone before rules
+2. **Goal** — What the AI should accomplish
+3. **Response Style** — Format and length guidelines
+4. **Resume Data** — Source of truth
+5. **What I Talk About** — Scope definition
+6. **Redirecting Off-Topic** — Natural, playful refusals
+7. **Security** — Guardrails with justifications
+8. **Good vs Bad Examples** — Concrete tone calibration
 
-See `.env.example`:
+### Environment Variables
 
 ```bash
 # .env.local
 OPENAI_API_KEY=          # Required
-OPENAI_BASE_URL=         # Optional
+OPENAI_BASE_URL=         # Optional (default: OpenAI)
 OPENAI_MODEL=            # Optional (default: gpt-4o-mini)
 LLM_CHAT_LANGUAGE=       # Optional (default: en)
-RESUME_URL=              # Optional, fetched at build time
-NEXT_PUBLIC_GA_ID=       # Optional, Google Analytics
+LLM_REASONING=           # Optional (none|minimal|low|medium|high|xhigh)
 ```
 
 Never commit `.env` / `.env.local`.
@@ -600,13 +669,309 @@ When adding a new feature:
 
 ---
 
+## UI Animations
+
+The terminal uses modern CSS and React features for smooth, native-feeling animations.
+
+### React 19.3 ViewTransition
+
+History items use `<ViewTransition>` for smooth enter/exit animations:
+
+```tsx
+import { unstable_ViewTransition as ViewTransition } from 'react';
+
+// In Terminal.tsx
+{history.map((item, idx) => (
+  <ViewTransition key={item.id}>
+    <div className="history-item command-entry">
+      {/* content */}
+    </div>
+  </ViewTransition>
+))}
+```
+
+State updates that trigger transitions use `startTransition()`:
+
+```tsx
+import { startTransition } from 'react';
+
+startTransition(() => {
+  setHistory(prev => [...prev, newItem]);
+});
+```
+
+### @starting-style Animations
+
+CSS `@starting-style` enables entry animations without JavaScript:
+
+```css
+/* Command output entry animation */
+.command-entry {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* AI response animation (slightly slower) */
+.ai-response-entry {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+```
+
+### Animation Classes
+
+| Class | Used By | Effect |
+|-------|---------|--------|
+| `.command-entry` | Command outputs | Fade in + slide up (8px, 0.2s) |
+| `.ai-response-entry` | AI chat responses | Fade in + slide up (12px, 0.3s) |
+| `.welcome-entry` | Welcome screen | Fade in + slide up (16px, 0.4s) |
+| `.slash-menu-entry` | Autocomplete menu | Fade in + slide up (4px, 0.15s) |
+| `.selector-entry` | /help, /model selectors | Scale in from 0.95 (0.2s) |
+
+### ViewTransition Pseudo-elements
+
+```css
+/* Fade transition for history items */
+::view-transition-old(history-item) {
+  animation: fade-out 0.15s ease-out forwards;
+}
+::view-transition-new(history-item) {
+  animation: fade-in 0.2s ease-out forwards;
+}
+```
+
+### Tailwind 4.3 Scrollbar Styling
+
+The terminal uses native scrollbar styling (Chromium + Firefox):
+
+```tsx
+<div className="scrollbar-thin scrollbar-thumb-brand-muted scrollbar-track-surface">
+```
+
+CSS variables in `globals.css`:
+
+```css
+/* Chromium */
+.scrollbar-thin::-webkit-scrollbar { width: 8px; }
+.scrollbar-thumb-brand-muted::-webkit-scrollbar-thumb {
+  background: var(--color-brand-muted);
+  border-radius: 4px;
+}
+.scrollbar-track-surface::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
+
+/* Firefox */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-brand-muted) var(--color-surface);
+}
+```
+
+### Accessibility
+
+All animations respect `prefers-reduced-motion`:
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  .command-entry,
+  .ai-response-entry,
+  .welcome-entry,
+  .slash-menu-entry,
+  .selector-entry {
+    transition: none;
+    animation: none;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+```
+
+---
+
+## Telemetry
+
+Optional JSONL logging for visitor interactions. Useful for understanding what visitors ask about.
+
+### Configuration
+
+```bash
+# .env.local
+TELEMETRY_ENABLED=true                      # Enable logging
+TELEMETRY_FILE=logs/chat-telemetry.jsonl    # Log file path
+TELEMETRY_MAX_SIZE_MB=10                    # Max file size before rotation
+TELEMETRY_MAX_FILES=5                       # Number of rotated files to keep
+```
+
+### Log Format
+
+Each line is a JSON object:
+
+```json
+{
+  "timestamp": "2026-10-03T14:30:00.000Z",
+  "sessionId": "abc123",
+  "type": "chat",
+  "prompt": "What's your experience with TypeScript?",
+  "response": "I've been working with TypeScript since...",
+  "model": "gpt-4o-mini",
+  "tokens": { "prompt": 150, "completion": 120, "total": 270 },
+  "latencyMs": 1250,
+  "finishReason": "stop"
+}
+```
+
+### File Rotation
+
+When a log file exceeds `TELEMETRY_MAX_SIZE_MB`:
+
+1. `chat-telemetry.jsonl` → `chat-telemetry.1.jsonl`
+2. `chat-telemetry.1.jsonl` → `chat-telemetry.2.jsonl`
+3. ... up to `TELEMETRY_MAX_FILES`
+4. Oldest file is deleted
+
+### Implementation
+
+```typescript
+// src/lib/telemetry.ts
+import { logChatInteraction, TelemetryEntry } from '@/lib/telemetry';
+
+// In API route
+await logChatInteraction({
+  sessionId,
+  prompt: lastUserMessage,
+  response: fullResponse,
+  model,
+  tokens: usage,
+  latencyMs: Date.now() - startTime,
+  finishReason,
+});
+```
+
+### Platform Requirements
+
+Telemetry requires a **persistent filesystem**:
+- ✅ Coolify, VPS, Docker, self-hosted
+- ❌ Vercel, Netlify, serverless (files lost between invocations)
+
+---
+
+## Testing
+
+The project includes 51 E2E tests using Playwright.
+
+### Running Tests
+
+```bash
+pnpm test              # Run all tests (headless)
+pnpm test:ui           # Run with Playwright UI
+pnpm test:headed       # Run in headed browser (visible)
+pnpm test:debug        # Run with debugger
+```
+
+### Test Structure
+
+```
+tests/e2e/
+├── startup.spec.ts      # Welcome screen, connecting line, logo
+├── commands.spec.ts     # All 50+ commands
+├── ai-chat.spec.ts      # AI chat with mocked responses
+├── easter-eggs.spec.ts  # /game, /quit login, sudo hire
+└── ux.spec.ts           # Keyboard nav, autocomplete, history
+```
+
+### Test Categories
+
+| File | Coverage |
+|------|----------|
+| `startup.spec.ts` | Connecting line → Welcome screen → Logo → Trust notice |
+| `commands.spec.ts` | All content, system, and fun commands |
+| `ai-chat.spec.ts` | Chat flow, streaming, error handling (mocked API) |
+| `easter-eggs.spec.ts` | `/game` controls, `/quit` login flow, `sudo hire` |
+| `ux.spec.ts` | Tab/arrow navigation, autocomplete, command history |
+
+### API Mocking
+
+AI chat tests mock the `/api/chat` endpoint:
+
+```typescript
+await page.route('**/api/chat', async (route) => {
+  await route.fulfill({
+    status: 200,
+    contentType: 'text/plain',
+    body: 'Mocked AI response for testing.',
+  });
+});
+```
+
+### Configuration
+
+`playwright.config.ts`:
+
+```typescript
+export default defineConfig({
+  testDir: './tests/e2e',
+  timeout: 30000,
+  retries: process.env.CI ? 2 : 0,
+  use: {
+    baseURL: 'http://localhost:3000',
+    trace: 'on-first-retry',
+  },
+  webServer: {
+    command: 'pnpm dev',
+    port: 3000,
+    reuseExistingServer: !process.env.CI,
+  },
+});
+```
+
+### Writing New Tests
+
+```typescript
+import { test, expect } from '@playwright/test';
+
+test('my new command works', async ({ page }) => {
+  await page.goto('/');
+  
+  // Wait for terminal to be ready
+  await expect(page.locator('[data-testid="welcome-screen"]')).toBeVisible();
+  
+  // Type command
+  await page.keyboard.type('/mycommand');
+  await page.keyboard.press('Enter');
+  
+  // Assert output
+  await expect(page.getByText('Expected output')).toBeVisible();
+});
+```
+
+---
+
 ## Development Commands
 
 ```bash
 pnpm dev               # Start dev server (Turbopack)
 pnpm build             # Production build (runs prebuild resume fetch first)
 pnpm start             # Start production server
-pnpm lint              # Run ESLint (requires an ESLint config)
+pnpm lint              # Run ESLint
+pnpm test              # Run E2E tests (Playwright)
+pnpm test:ui           # Run tests with Playwright UI
 pnpm exec tsc --noEmit # TypeScript check
 ```
 

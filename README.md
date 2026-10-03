@@ -43,6 +43,20 @@ A developer portfolio that looks and feels like the real [Kiro CLI](https://kiro
 - 🎯 **Fully Configurable** — Customize everything via `resume.json`
 - 📱 **Responsive** — Works on mobile and desktop
 - ⚡ **Fast** — Edge runtime, streaming responses
+- ✨ **Smooth Animations** — ViewTransition, @starting-style, custom scrollbar
+- 📊 **Telemetry** — Log visitor interactions to JSONL
+
+## Tech Stack
+
+| Category | Technology |
+|----------|------------|
+| **Framework** | Next.js 16 (App Router, Turbopack) |
+| **UI** | React 19.3, Tailwind CSS 4.3 |
+| **Language** | TypeScript 7 |
+| **AI** | Vercel AI SDK 7 (Edge runtime, streaming) |
+| **Runtime** | Node.js 26 |
+| **Font** | JetBrains Mono |
+| **Data** | JSON Resume format + Kiro extensions |
 
 ## Fork & Make It Yours
 
@@ -94,14 +108,27 @@ This project is designed to be forked. Edit `resume.json` and you have your own 
 ### Environment Variables
 
 ```env
-OPENAI_API_KEY=           # Required (any OpenAI-compatible provider)
-OPENAI_BASE_URL=          # Optional (OpenRouter, Groq, local LLMs, ...)
-OPENAI_MODEL=             # Optional (default: gpt-4o-mini)
-LLM_CHAT_LANGUAGE=        # Optional (default: en)
-NEXT_PUBLIC_GA_ID=        # Optional (Google Analytics)
+# Required
+OPENAI_API_KEY=
+
+# Optional - AI Configuration
+OPENAI_BASE_URL=          # OpenRouter, Groq, local LLMs, ...
+OPENAI_MODEL=             # default: gpt-4o-mini
+LLM_CHAT_LANGUAGE=        # default: en (or pt-br, es, fr, ...)
+LLM_REASONING=            # AI SDK 7: none | minimal | low | medium | high | xhigh
+
+# Optional - Telemetry (requires persistent filesystem)
+TELEMETRY_ENABLED=false   # Enable chat logging
+TELEMETRY_FILE=           # default: logs/chat-telemetry.jsonl
+TELEMETRY_MAX_SIZE_MB=    # default: 10
+TELEMETRY_MAX_FILES=      # default: 5
+
+# Optional - Build & Analytics
+RESUME_URL=               # Fetch resume.json from URL at build time
+NEXT_PUBLIC_GA_ID=        # Google Analytics
 ```
 
-> **Note**: You can set `RESUME_URL` in your environment to fetch `resume.json` from a URL at build time.
+> **Note**: Telemetry only works on platforms with persistent filesystems (Coolify, VPS, Docker). On Vercel/serverless, logs are lost between invocations.
 
 ## Getting Started
 
@@ -117,25 +144,43 @@ Create your `.env.local` (see `.env.example`), edit `resume.json`, then:
 pnpm dev     # Start dev server
 pnpm build   # Production build
 pnpm start   # Start production server
+pnpm lint    # Run ESLint
+pnpm test    # Run E2E tests (Playwright)
 ```
 
-## Tech Stack
+## New in This Version
 
-- **Framework**: Next.js 15 (App Router, Turbopack)
-- **UI**: React 19, Tailwind CSS 4
-- **Language**: TypeScript
-- **AI**: Google Gemini 2.5 Flash Lite via Vercel AI SDK (Edge runtime, streaming)
-- **Font**: JetBrains Mono
-- **Data**: JSON Resume format + Kiro extensions
+### AI SDK 7 Features
+- **`instructions`** — System prompt as a first-class parameter
+- **`maxOutputTokens`** — Explicit token limit control
+- **`toTextStream()`** — Clean text streaming without data protocol overhead
+- **Timeouts** — Configurable `totalMs` and `chunkMs` to prevent hangs
+- **Lifecycle callbacks** — `onStart` and `onEnd` for logging
+- **Reasoning control** — `LLM_REASONING` env var for models that support it
+
+### UI Animations (2026 CSS/React)
+- **React 19.3 ViewTransition** — Smooth enter/exit animations for history items
+- **@starting-style** — CSS entry animations without JavaScript
+- **Tailwind 4.3 scrollbar** — Native scrollbar styling with `scrollbar-thin`, `scrollbar-thumb-*`
+- **prefers-reduced-motion** — All animations respect accessibility settings
+
+### Telemetry
+- **JSONL logging** — Log prompts, responses, tokens, and latency to local files
+- **File rotation** — Automatic rotation when files exceed size limit
+- **Configurable** — Control via environment variables
+
+### System Prompt Improvements
+- **Humanized responses** — Natural conversation style, not robotic
+- **Better redirects** — Playful off-topic handling instead of formal refusals
+- **Good/Bad examples** — Concrete examples for tone calibration
+- **Structured guardrails** — Security rules with justifications
 
 ## Documentation
 
-See [docs/DEV.md](docs/DEV.md) for the full developer manual:
-- Architecture overview
-- How to add new commands
-- Customizing command output
-- Chrome components reference
-- Theming & colors
+- **[docs/DEV.md](docs/DEV.md)** — Full developer manual: architecture, commands, theming
+- **[docs/AI_SDK_7_FEATURES.md](docs/AI_SDK_7_FEATURES.md)** — AI SDK 7 features and usage
+- **[docs/TEST_PLAN.md](docs/TEST_PLAN.md)** — E2E test coverage and strategy
+- **[docs/UPGRADE_PLAN_2026.md](docs/UPGRADE_PLAN_2026.md)** — Migration notes from 2025 stack
 
 ## Command Reference
 
@@ -173,6 +218,24 @@ See [docs/DEV.md](docs/DEV.md) for the full developer manual:
 | `/doctor` | Skill diagnostics |
 | `/cost` | Humorous cost analysis |
 | `/init` | Generate KIRO.md |
+| `/game` | Kiro Ghost runner easter egg |
+
+## Testing
+
+The project includes 51 E2E tests using Playwright:
+
+```bash
+pnpm test              # Run all tests
+pnpm test:ui           # Run with Playwright UI
+pnpm test:headed       # Run in headed browser
+```
+
+Tests cover:
+- Startup and welcome screen
+- All 50+ commands
+- AI chat with mocked responses
+- Easter eggs (/game, /quit login, sudo hire)
+- UX (keyboard navigation, autocomplete, history)
 
 ---
 
