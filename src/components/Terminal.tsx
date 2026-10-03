@@ -52,11 +52,19 @@ const CONNECT_MS = 700;
 interface TerminalProps {
   // ?splash_name= — spelled in the Kiro font on the welcome screen
   splashName?: string;
-  // Startup tip, picked once per page load on the server
-  tip?: string;
+  // Welcome message from resume.json
+  welcome?: string;
+  // What's new message from resume.json
+  whatsNew?: string;
+  // Trust notice message from resume.json
+  trustNotice?: string;
+  // Default model name from resume.json
+  defaultModel?: string;
+  // Folder path displayed in status line (e.g. "~/workspace/projects/my-project · (main)")
+  folder?: string;
 }
 
-export function Terminal({ splashName, tip }: TerminalProps) {
+export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultModel, folder }: TerminalProps) {
   const [input, setInput] = useState('');
   const [history, setHistory] = useState<HistoryEntry[]>([
     { id: 'welcome', type: 'welcome' },
@@ -71,7 +79,7 @@ export function Terminal({ splashName, tip }: TerminalProps) {
   // Model selector state
   const [modelSelectorOpen, setModelSelectorOpen] = useState(false);
   const [modelSelectorIndex, setModelSelectorIndex] = useState(0);
-  const [currentModelIndex, setCurrentModelIndex] = useState(0);
+  const [currentModel, setCurrentModel] = useState(defaultModel || 'Default');
 
   // Help selector state
   const [helpSelectorOpen, setHelpSelectorOpen] = useState(false);
@@ -118,7 +126,7 @@ export function Terminal({ splashName, tip }: TerminalProps) {
         }
         if (e.key === 'Enter') {
           e.preventDefault();
-          setCurrentModelIndex(modelSelectorIndex);
+          setCurrentModel(careerModels[modelSelectorIndex]?.name ?? 'Default');
           setModelSelectorOpen(false);
           return;
         }
@@ -209,12 +217,18 @@ export function Terminal({ splashName, tip }: TerminalProps) {
       case '/clear':
       case '/cls':
         return null; // handled separately
+      
+      // ═══════════════════════════════════════════════════════════════════════
+      // KIRO CLI SIMULATED COMMANDS
+      // ═══════════════════════════════════════════════════════════════════════
+      
       case '/compact':
         return (
           <div className="text-xs sm:text-sm py-1" style={{ color: colors.success }}>
             ✓ Context compacted. Conversation history preserved.
           </div>
         );
+      
       case '/context':
         return (
           <div className="text-xs sm:text-sm py-1">
@@ -224,10 +238,267 @@ export function Terminal({ splashName, tip }: TerminalProps) {
             <div style={{ color: colors.muted }}>• All commands available</div>
           </div>
         );
+      
+      case '/rewind':
+        return (
+          <div className="text-xs sm:text-sm py-1" style={{ color: colors.warning }}>
+            ⟲ No checkpoints available. Use /checkpoint to create one.
+          </div>
+        );
+      
+      case '/checkpoint':
+        return (
+          <div className="text-xs sm:text-sm py-1" style={{ color: colors.success }}>
+            ✓ Checkpoint created at {new Date().toLocaleTimeString()}
+          </div>
+        );
+      
+      case '/agent':
+        return (
+          <div className="text-xs sm:text-sm py-1">
+            <div style={{ color: colors.brand }}>Agent Configuration:</div>
+            <div style={{ color: colors.text }}>Name: <span style={{ color: colors.muted }}>Portfolio Assistant</span></div>
+            <div style={{ color: colors.text }}>Mode: <span style={{ color: colors.muted }}>Interactive</span></div>
+            <div style={{ color: colors.text }}>Tools: <span style={{ color: colors.success }}>All trusted</span></div>
+          </div>
+        );
+      
+      case '/effort':
+        return (
+          <div className="text-xs sm:text-sm py-1">
+            <div style={{ color: colors.brand }}>Effort Level:</div>
+            <div className="flex items-center gap-2 mt-1">
+              <span style={{ color: colors.brand }}>▌▌▌</span>
+              <span style={{ color: colors.text }}>High</span>
+              <span style={{ color: colors.muted }}>(default)</span>
+            </div>
+            <div style={{ color: colors.muted }} className="mt-1">Use /effort [low|medium|high] to change</div>
+          </div>
+        );
+      
+      case '/knowledge':
+      case '/kb':
+        return (
+          <div className="text-xs sm:text-sm py-1">
+            <div style={{ color: colors.brand }}>Knowledge Base:</div>
+            <div style={{ color: colors.muted }}>• resume.json <span style={{ color: colors.success }}>✓ indexed</span></div>
+            <div style={{ color: colors.muted }}>• personal.ts <span style={{ color: colors.success }}>✓ indexed</span></div>
+          </div>
+        );
+      
+      case '/memories':
+        return (
+          <div className="text-xs sm:text-sm py-1">
+            <div style={{ color: colors.brand }}>Stored Memories:</div>
+            <div style={{ color: colors.muted }}>No memories stored yet. Chat with me to create some!</div>
+          </div>
+        );
+      
+      case '/tools':
+        return (
+          <div className="text-xs sm:text-sm py-1">
+            <div style={{ color: colors.brand }}>Available Tools:</div>
+            <div style={{ color: colors.success }}>✓ read_file</div>
+            <div style={{ color: colors.success }}>✓ web_search</div>
+            <div style={{ color: colors.success }}>✓ execute_bash</div>
+            <div style={{ color: colors.success }}>✓ clipboard</div>
+            <div style={{ color: colors.muted }} className="mt-1">All tools trusted · confirmations off</div>
+          </div>
+        );
+      
+      case '/mcp':
+        return (
+          <div className="text-xs sm:text-sm py-1">
+            <div style={{ color: colors.brand }}>MCP Servers:</div>
+            <div style={{ color: colors.success }}>● portfolio-server <span style={{ color: colors.muted }}>connected</span></div>
+          </div>
+        );
+      
+      case '/config':
+      case '/settings':
+        return (
+          <div className="text-xs sm:text-sm py-1">
+            <div style={{ color: colors.brand }}>Configuration:</div>
+            <div style={{ color: colors.text }}>Theme: <span style={{ color: colors.muted }}>dark</span></div>
+            <div style={{ color: colors.text }}>Trust: <span style={{ color: colors.warning }}>all tools</span></div>
+            <div style={{ color: colors.text }}>Model: <span style={{ color: colors.muted }}>{currentModel}</span></div>
+          </div>
+        );
+      
+      case '/hooks':
+        return (
+          <div className="text-xs sm:text-sm py-1">
+            <div style={{ color: colors.brand }}>Active Hooks:</div>
+            <div style={{ color: colors.muted }}>No hooks configured</div>
+          </div>
+        );
+      
+      case '/steering':
+        return (
+          <div className="text-xs sm:text-sm py-1">
+            <div style={{ color: colors.brand }}>Steering Rules:</div>
+            <div style={{ color: colors.muted }}>• Be helpful and informative</div>
+            <div style={{ color: colors.muted }}>• Answer questions about the resume</div>
+            <div style={{ color: colors.muted }}>• Keep responses concise</div>
+          </div>
+        );
+      
+      case '/sessions':
+        return (
+          <div className="text-xs sm:text-sm py-1">
+            <div style={{ color: colors.brand }}>Recent Sessions:</div>
+            <div style={{ color: colors.text }}>1. <span style={{ color: colors.muted }}>Current session</span> <span style={{ color: colors.success }}>● active</span></div>
+          </div>
+        );
+      
+      case '/save':
+        return (
+          <div className="text-xs sm:text-sm py-1" style={{ color: colors.success }}>
+            ✓ Session saved
+          </div>
+        );
+      
+      case '/load':
+        return (
+          <div className="text-xs sm:text-sm py-1" style={{ color: colors.muted }}>
+            No saved sessions to load. Use /save first.
+          </div>
+        );
+      
+      case '/paste':
+        return (
+          <div className="text-xs sm:text-sm py-1" style={{ color: colors.muted }}>
+            Clipboard access requires user interaction. Click the input and use Ctrl+V.
+          </div>
+        );
+      
+      case '/guide':
+        return (
+          <div className="text-xs sm:text-sm py-1">
+            <div style={{ color: colors.brand }}>Quick Guide:</div>
+            <div style={{ color: colors.muted }}>• Type <span style={{ color: colors.text }}>/help</span> to see all commands</div>
+            <div style={{ color: colors.muted }}>• Type <span style={{ color: colors.text }}>/about</span> for a quick intro</div>
+            <div style={{ color: colors.muted }}>• Type anything else to chat with AI</div>
+            <div style={{ color: colors.muted }}>• Press <span style={{ color: colors.text }}>Tab</span> to autocomplete commands</div>
+            <div style={{ color: colors.muted }}>• Press <span style={{ color: colors.text }}>↑/↓</span> for command history</div>
+          </div>
+        );
+      
+      case '/changelog':
+        return (
+          <div className="text-xs sm:text-sm py-1">
+            <div style={{ color: colors.brand }}>Changelog v3.0.0:</div>
+            <div style={{ color: colors.muted }}>• New Kiro-style UI</div>
+            <div style={{ color: colors.muted }}>• Interactive command selector</div>
+            <div style={{ color: colors.muted }}>• AI chat integration</div>
+            <div style={{ color: colors.muted }}>• Configurable via resume.json</div>
+          </div>
+        );
+      
+      case '/feedback':
+        return (
+          <div className="text-xs sm:text-sm py-1">
+            <div style={{ color: colors.brand }}>Send Feedback:</div>
+            <div style={{ color: colors.muted }}>Use /contact to find my email or GitHub!</div>
+          </div>
+        );
+      
+      case '/autonomous':
+      case '/auto':
+        return (
+          <div className="text-xs sm:text-sm py-1" style={{ color: colors.warning }}>
+            ⚡ Autonomous mode is always on. I&apos;m here to help!
+          </div>
+        );
+      
+      case '/verbosity':
+        return (
+          <div className="text-xs sm:text-sm py-1">
+            <div style={{ color: colors.brand }}>Verbosity:</div>
+            <div style={{ color: colors.text }}>Level: <span style={{ color: colors.muted }}>normal</span></div>
+            <div style={{ color: colors.muted }}>Options: quiet | normal | verbose | debug</div>
+          </div>
+        );
+      
+      case '/theme':
+        return (
+          <div className="text-xs sm:text-sm py-1">
+            <div style={{ color: colors.brand }}>Theme:</div>
+            <div style={{ color: colors.text }}>Current: <span style={{ color: colors.muted }}>Kiro Dark</span></div>
+            <div style={{ color: colors.muted }}>This is the only theme. It&apos;s perfect.</div>
+          </div>
+        );
+      
+      case '/todos':
+        return (
+          <div className="text-xs sm:text-sm py-1">
+            <div style={{ color: colors.brand }}>Task List:</div>
+            <div style={{ color: colors.success }}>✓ Build amazing portfolio</div>
+            <div style={{ color: colors.success }}>✓ Implement Kiro CLI style</div>
+            <div style={{ color: colors.muted }}>○ Get hired by your dream company</div>
+          </div>
+        );
+      
+      case '/transcript':
+        return (
+          <div className="text-xs sm:text-sm py-1" style={{ color: colors.muted }}>
+            Transcript export not available in browser. Use /copy to copy responses.
+          </div>
+        );
+      
+      case '/workflow':
+      case '/workflows':
+        return (
+          <div className="text-xs sm:text-sm py-1">
+            <div style={{ color: colors.brand }}>Available Workflows:</div>
+            <div style={{ color: colors.muted }}>• hire-me <span style={{ color: colors.secondary }}>— Submit a job offer</span></div>
+            <div style={{ color: colors.muted }}>• review-cv <span style={{ color: colors.secondary }}>— Deep dive into experience</span></div>
+          </div>
+        );
+      
+      case '/workflow-run':
+        return (
+          <div className="text-xs sm:text-sm py-1" style={{ color: colors.muted }}>
+            Usage: /workflow-run &lt;workflow-name&gt;
+          </div>
+        );
+      
+      case '/workflow-status':
+        return (
+          <div className="text-xs sm:text-sm py-1" style={{ color: colors.muted }}>
+            No workflows running.
+          </div>
+        );
+      
+      case '/spawn':
+        return (
+          <div className="text-xs sm:text-sm py-1" style={{ color: colors.warning }}>
+            🤖 Sub-agent spawning not available. I&apos;m a one-person show!
+          </div>
+        );
+      
+      case '/tangent':
+        return (
+          <div className="text-xs sm:text-sm py-1" style={{ color: colors.muted }}>
+            Starting a tangent... Actually, let&apos;s stay focused on the portfolio!
+          </div>
+        );
+      
+      case '/quit':
+      case '/exit':
+      case '/q':
+        return (
+          <div className="text-xs sm:text-sm py-1" style={{ color: colors.muted }}>
+            Thanks for visiting! But you can&apos;t really quit a portfolio... 😄
+            <br />
+            <span style={{ color: colors.secondary }}>Use /contact to reach out!</span>
+          </div>
+        );
+
       default:
         return null;
     }
-  }, []);
+  }, [currentModel]);
 
   const handleAIChat = useCallback(async (message: string) => {
     const entryId = crypto.randomUUID();
@@ -384,7 +655,9 @@ export function Terminal({ splashName, tip }: TerminalProps) {
             type: 'command',
             input: trimmed,
           });
-          setModelSelectorIndex(currentModelIndex);
+          // Find current model index in careerModels
+          const idx = careerModels.findIndex(m => m.name === currentModel);
+          setModelSelectorIndex(idx >= 0 ? idx : 0);
           setModelSelectorOpen(true);
           setInput('');
           return;
@@ -433,7 +706,7 @@ export function Terminal({ splashName, tip }: TerminalProps) {
     }
 
     setInput('');
-  }, [input, cmdHistory, handleClear, addEntry, renderCommandOutput, handleAIChat, currentModelIndex]);
+  }, [input, cmdHistory, handleClear, addEntry, renderCommandOutput, handleAIChat, currentModel]);
 
   // Process pending command from help selector
   useEffect(() => {
@@ -479,10 +752,20 @@ export function Terminal({ splashName, tip }: TerminalProps) {
 
     if (e.key === 'Tab') {
       e.preventDefault();
-      const completed = complete(input);
-      if (completed) {
-        setInput(completed);
-        setShowSlashMenu(false);
+      if (showSlashMenu) {
+        // Use selected item from menu
+        const matches = filterCommands(input);
+        if (matches[menuIndex]) {
+          setInput(matches[menuIndex].name);
+          setShowSlashMenu(false);
+        }
+      } else {
+        // Fallback to autocomplete hook
+        const completed = complete(input);
+        if (completed) {
+          setInput(completed);
+          setShowSlashMenu(false);
+        }
       }
       return;
     }
@@ -514,9 +797,9 @@ export function Terminal({ splashName, tip }: TerminalProps) {
       e.preventDefault();
       const matches = filterCommands(input);
       if (matches[menuIndex]) {
+        // Fill input with selected command (don't execute yet)
+        setInput(matches[menuIndex].name);
         setShowSlashMenu(false);
-        setInput('');
-        handleSubmit(matches[menuIndex].name);
       }
       return;
     }
@@ -543,7 +826,7 @@ export function Terminal({ splashName, tip }: TerminalProps) {
 
             if (entry.type === 'welcome') {
               if (connecting) return <ConnectingLine key={entry.id} />;
-              return <WelcomeScreen key={entry.id} splashName={splashName} tip={tip} />;
+              return <WelcomeScreen key={entry.id} splashName={splashName} welcome={welcome} whatsNew={whatsNew} />;
             }
 
             if (entry.type === 'command') {
@@ -598,9 +881,9 @@ export function Terminal({ splashName, tip }: TerminalProps) {
           {modelSelectorOpen && (
             <Models
               selectedIndex={modelSelectorIndex}
-              currentIndex={currentModelIndex}
+              currentIndex={careerModels.findIndex(m => m.name === currentModel)}
               onConfirm={(index) => {
-                setCurrentModelIndex(index);
+                setCurrentModel(careerModels[index]?.name ?? 'Default');
                 setModelSelectorOpen(false);
               }}
               onCancel={() => setModelSelectorOpen(false)}
@@ -611,13 +894,12 @@ export function Terminal({ splashName, tip }: TerminalProps) {
               status line, input, slash menu, hint — hidden while /help is open */}
           {!helpSelectorOpen && (
             <>
-              <TrustNotice />
+              <TrustNotice message={trustNotice} />
               <Divider />
               <StatusLine
                 agent="Default"
-                model={careerModels[currentModelIndex]?.name ?? ''}
-                location={siteConfig.path}
-                branch={siteConfig.branch}
+                model={currentModel}
+                folder={folder}
               />
               <InputBox
                 value={input}
