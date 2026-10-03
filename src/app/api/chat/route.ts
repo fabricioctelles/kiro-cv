@@ -2,11 +2,12 @@ import { createOpenAI } from '@ai-sdk/openai';
 import { streamText } from 'ai';
 // System prompt: src/lib/system-prompt.ts
 import { SYSTEM_PROMPT } from '@/lib/system-prompt';
+import { getClientIp } from '@/lib/api-security';
 
 export const runtime = 'edge';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// RATE LIMITING (in-memory, per-IP)
+// LIMITS
 // ═══════════════════════════════════════════════════════════════════════════
 
 const RATE_LIMIT = {
@@ -15,6 +16,15 @@ const RATE_LIMIT = {
   maxRequestsPerDay: 50,      // max requests per day per IP
   dayWindowMs: 24 * 60 * 60 * 1000,
 };
+
+const MAX_BODY_BYTES = 32 * 1024;    // reject oversized request bodies early
+const MAX_MESSAGE_CHARS = 2000;      // per message
+const MAX_TOTAL_CHARS = 8000;        // whole conversation
+const MAX_MESSAGES = 30;
+
+// Only these roles may ever reach the model. Without this, a caller could
+// inject a `system`/`tool` message and override the portfolio persona.
+const ALLOWED_ROLES = new Set(['user', 'assistant']);
 
 // Store: IP -> { count, resetTime, dailyCount, dailyResetTime }
 const rateLimitStore = new Map<string, {
@@ -98,10 +108,25 @@ const ABUSE_PATTERNS = [
   /developer mode/i,
   /dan mode/i,
   /ignore.*guardrails/i,
+  /disregard/i,
+  /system prompt/i,
+  /reveal.*(?:instructions|prompt|secret|env)/i,
 ];
 
+// Collapse unicode look-alikes and zero-width characters so the blocklist
+// cannot be trivially evaded with invisible/confusable characters.
+function normalizeForFilter(text: string): string {
+  return text
+    .normalize('NFKC')
+    // zero-width space/joiner/non-joiner, BOM, word-joiner, soft hyphen
+    .replace(/[\u200B-\u200D\uFEFF\u2060\u00AD]/g, '')
+    .replace(/\s+/g, ' ')
+    .toLowerCase();
+}
+
 function containsAbusePattern(text: string): boolean {
-  return ABUSE_PATTERNS.some(pattern => pattern.test(text));
+  const normalized = normalizeForFilter(text);
+  return ABUSE_PATTERNS.some((pattern) => pattern.test(text) || pattern.test(normalized));
 }
 
 function validateInput(messages: Array<{ role: string; content: string }>): { valid: boolean; reason?: string } {
@@ -113,22 +138,29 @@ function validateInput(messages: Array<{ role: string; content: string }>): { va
     return { valid: false, reason: 'No messages provided' };
   }
 
-  if (messages.length > 30) {
+  if (messages.length > MAX_MESSAGES) {
     return { valid: false, reason: 'Too many messages in conversation' };
   }
 
+  let totalChars = 0;
+
   for (const msg of messages) {
-    if (!msg.role || !msg.content) {
+    if (!msg || typeof msg.role !== 'string' || typeof msg.content !== 'string') {
       return { valid: false, reason: 'Invalid message structure' };
     }
 
-    if (typeof msg.content !== 'string') {
-      return { valid: false, reason: 'Message content must be string' };
+    // Role allowlist — blocks prompt injection via system/developer messages.
+    if (!ALLOWED_ROLES.has(msg.role)) {
+      return { valid: false, reason: 'Invalid message role' };
     }
 
-    // Max 2000 chars per message
-    if (msg.content.length > 2000) {
+    if (msg.content.length > MAX_MESSAGE_CHARS) {
       return { valid: false, reason: 'Message too long (max 2000 characters)' };
+    }
+
+    totalChars += msg.content.length;
+    if (totalChars > MAX_TOTAL_CHARS) {
+      return { valid: false, reason: 'Conversation too large' };
     }
 
     // Check for prompt injection attempts
@@ -149,25 +181,25 @@ const openai = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+function jsonResponse(body: unknown, status: number, extraHeaders?: Record<string, string>) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { 'Content-Type': 'application/json', ...extraHeaders },
+  });
+}
+
 export async function POST(req: Request) {
   try {
-    // Get client IP
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() 
-      || req.headers.get('x-real-ip') 
-      || 'unknown';
+    // Get client IP (proxy/CDN aware; never trusts the leftmost XFF hop)
+    const ip = getClientIp(req);
 
     // Rate limiting
     const rateLimit = getRateLimitInfo(ip);
     if (!rateLimit.allowed) {
-      return new Response(
-        JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
-        { 
-          status: 429,
-          headers: {
-            'Content-Type': 'application/json',
-            'Retry-After': String(rateLimit.retryAfter || 60),
-          }
-        }
+      return jsonResponse(
+        { error: 'Rate limit exceeded. Please try again later.' },
+        429,
+        { 'Retry-After': String(rateLimit.retryAfter || 60) },
       );
     }
 
@@ -176,16 +208,32 @@ export async function POST(req: Request) {
       cleanupRateLimitStore();
     }
 
-    // Parse and validate input
-    const body = await req.json();
-    const { messages } = body;
+    // Reject oversized bodies before parsing
+    const declaredLength = Number(req.headers.get('content-length') || 0);
+    if (declaredLength > MAX_BODY_BYTES) {
+      return jsonResponse({ error: 'Request too large' }, 413);
+    }
 
-    const validation = validateInput(messages);
+    // Parse and validate input
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return jsonResponse({ error: 'Invalid JSON body' }, 400);
+    }
+
+    const { messages } = (body ?? {}) as { messages?: Array<{ role: string; content: string }> };
+
+    if (typeof messages !== 'undefined') {
+      // Cheap guard: even without Content-Length, cap serialized size.
+      if (JSON.stringify(messages).length > MAX_BODY_BYTES) {
+        return jsonResponse({ error: 'Request too large' }, 413);
+      }
+    }
+
+    const validation = validateInput(messages as Array<{ role: string; content: string }>);
     if (!validation.valid) {
-      return new Response(
-        JSON.stringify({ error: validation.reason }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ error: validation.reason }, 400);
     }
 
     // Call LLM
@@ -194,7 +242,7 @@ export async function POST(req: Request) {
     const result = await streamText({
       model: openai(model),
       system: SYSTEM_PROMPT,
-      messages,
+      messages: messages as { role: 'user' | 'assistant'; content: string }[],
       maxTokens: 300,
     });
 
@@ -202,15 +250,9 @@ export async function POST(req: Request) {
 
   } catch (error: unknown) {
     if (error instanceof Error && 'status' in error && (error as { status: number }).status === 429) {
-      return new Response(
-        JSON.stringify({ error: 'Rate limit exceeded' }),
-        { status: 429, headers: { 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ error: 'Rate limit exceeded' }, 429);
     }
     console.error('Chat API error:', error);
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    return jsonResponse({ error: 'Internal server error' }, 500);
   }
 }
