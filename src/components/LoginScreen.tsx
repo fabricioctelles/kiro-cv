@@ -119,10 +119,11 @@ export function LoginScreen({
                   else setPassword(e.target.value);
                 }}
                 onKeyDown={handleKeyDown}
-                className="absolute inset-0 w-full bg-transparent border-none outline-none font-mono text-xs sm:text-sm"
+                className="no-focus-outline absolute inset-0 w-full bg-transparent border-none outline-none font-mono text-xs sm:text-sm focus:outline-none focus:ring-0"
                 style={{ 
                   color: colors.text,
                   caretColor: colors.text,
+                  boxShadow: 'none',
                 }}
                 autoComplete="off"
                 autoCorrect="off"

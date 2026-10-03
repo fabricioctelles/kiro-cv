@@ -97,6 +97,11 @@ a:hover {
   outline-offset: 2px;
 }
 
+/* Disable focus outline for login screen inputs */
+.no-focus-outline:focus-visible {
+  outline: none;
+}
+
 /* Code blocks */
 pre, code {
   font-family: var(--font-mono);
