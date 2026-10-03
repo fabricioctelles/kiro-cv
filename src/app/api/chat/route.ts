@@ -3,6 +3,7 @@ import { streamText, toTextStream, createTextStreamResponse } from 'ai';
 // System prompt: src/lib/system-prompt.ts
 import { SYSTEM_PROMPT } from '@/lib/system-prompt';
 import { getClientIp } from '@/lib/api-security';
+import { createTelemetryCollector, generateCallId, isTelemetryEnabled } from '@/lib/telemetry';
 
 export const runtime = 'nodejs';
 
@@ -238,11 +239,22 @@ export async function POST(req: Request) {
 
     // Call LLM
     const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+    const callId = generateCallId();
+    
+    // Extract the last user message as the "prompt" for telemetry
+    const typedMessages = messages as { role: 'user' | 'assistant'; content: string }[];
+    const lastUserMessage = typedMessages.filter(m => m.role === 'user').pop();
+    const prompt = lastUserMessage?.content || '';
+
+    // Set up telemetry collector (only active if TELEMETRY_ENABLED=true)
+    const telemetry = isTelemetryEnabled()
+      ? createTelemetryCollector({ callId, model, ip, prompt })
+      : null;
 
     const result = streamText({
       model: openai(model),
       instructions: SYSTEM_PROMPT,
-      messages: messages as { role: 'user' | 'assistant'; content: string }[],
+      messages: typedMessages,
       maxOutputTokens: 300,
       
       // AI SDK 7: Timeout configuration to prevent hanging requests
@@ -253,10 +265,18 @@ export async function POST(req: Request) {
       
       // AI SDK 7: Lifecycle callbacks for observability
       onStart: ({ modelId }) => {
-        console.log(`[chat] Request started | model=${modelId} | ip=${ip}`);
+        console.log(`[chat] Request started | callId=${callId} | model=${modelId} | ip=${ip}`);
       },
-      onFinish: ({ usage, finishReason }) => {
-        console.log(`[chat] Request finished | reason=${finishReason} | tokens=${usage?.totalTokens || 'unknown'}`);
+      onFinish: async ({ text, usage, finishReason }) => {
+        console.log(`[chat] Request finished | callId=${callId} | reason=${finishReason} | tokens=${usage?.totalTokens || 'unknown'}`);
+        
+        // Log telemetry if enabled
+        if (telemetry) {
+          telemetry.setResponse(text);
+          telemetry.setUsage(usage);
+          telemetry.setFinishReason(finishReason);
+          await telemetry.flush();
+        }
       },
     });
 

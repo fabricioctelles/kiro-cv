@@ -43,3 +43,6 @@ yarn-error.log*
 next-env.d.ts
 test-results/
 playwright-report/
+
+# telemetry logs (contain user prompts)
+/logs/
