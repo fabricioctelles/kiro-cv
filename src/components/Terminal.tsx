@@ -984,15 +984,7 @@ export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultMo
                       className="hover:opacity-80 transition-opacity"
                       title="ft.ia.br"
                     >
-                      <svg width="14" height="14" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" className="inline-block">
-                        <rect width="512" height="74" fill="currentColor"/>
-                        <rect y="146" width="512" height="74" fill="currentColor"/>
-                        <rect y="292" width="512" height="74" fill="currentColor"/>
-                        <rect y="438" width="512" height="74" fill="currentColor"/>
-                        <rect y="74" width="72" height="72" fill="currentColor"/>
-                        <rect y="366" width="72" height="72" fill="currentColor"/>
-                        <rect x="440" y="220" width="72" height="72" fill="currentColor"/>
-                      </svg>
+                      <img src="/ft-ia-br.svg" alt="ft.ia.br" width={14} height={14} className="inline-block" />
                     </a>
                     {' '}-{' '}
                     <a
