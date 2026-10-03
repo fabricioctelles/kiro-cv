@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: `${siteConfig.name} - ${siteConfig.author}`,
   description: siteConfig.description,
   icons: {
-    icon: '/favicon.png',
+    icon: '/favicon.ico',
   },
   openGraph: {
     title: ogTitle,
