@@ -39,7 +39,7 @@ A developer portfolio that looks and feels like the real [Kiro CLI](https://kiro
 
 - 🎨 **Authentic Kiro CLI look** — Dot-matrix logo, status line, trust notice, colors
 - 💬 **AI Chat** — Visitors can chat with an AI that knows your resume
-- ⌨️ **47+ Commands** — Portfolio commands + simulated Kiro CLI commands
+- ⌨️ **50+ Commands** — Portfolio commands + simulated Kiro CLI commands
 - 🎯 **Fully Configurable** — Customize everything via `resume.json`
 - 📱 **Responsive** — Works on mobile and desktop
 - ⚡ **Fast** — Edge runtime, streaming responses
@@ -73,6 +73,10 @@ This project is designed to be forked. Edit `resume.json` and you have your own 
 | `trustNotice` | Trust banner (text before `·` is yellow, after is gray) |
 | `model` | Default career model shown in status line |
 | `folder` | Path shown in status line (format: `path · (branch)`) |
+| `resume` | `message` and `url` for `/resume` |
+| `login` | Credentials and hints for the login screen shown on `/quit` |
+| `personal` | Optional overrides for `/status`, `/usage`, `/model`, `/skills` categories, `/doctor`, `/cost`, `/init` (defaults in `src/config/personal.ts`) |
+| `meta.version` | Version shown in `/help`, `/version`, `/changelog` |
 
 ### Resume Data (JSON Resume format)
 
@@ -84,11 +88,17 @@ This project is designed to be forked. Edit `resume.json` and you have your own 
 | `skills[]` | `name`, `keywords[]` | `/skills` |
 | `education[]` | `institution`, `area` | `/education` |
 | `languages[]` | `language`, `fluency` | `/languages` |
+| `projects[]` | `name`, `description`, `highlights[]`, `keywords[]`, `url`, `type` | `/projects` |
+| `publications[]` | `name`, `publisher`, `releaseDate`, `url`, `summary` | `/publications` |
 
 ### Environment Variables
 
 ```env
-GOOGLE_GENERATIVE_AI_API_KEY=your_gemini_api_key
+OPENAI_API_KEY=           # Required (any OpenAI-compatible provider)
+OPENAI_BASE_URL=          # Optional (OpenRouter, Groq, local LLMs, ...)
+OPENAI_MODEL=             # Optional (default: gpt-4o-mini)
+LLM_CHAT_LANGUAGE=        # Optional (default: en)
+NEXT_PUBLIC_GA_ID=        # Optional (Google Analytics)
 ```
 
 > **Note**: You can set `RESUME_URL` in your environment to fetch `resume.json` from a URL at build time.

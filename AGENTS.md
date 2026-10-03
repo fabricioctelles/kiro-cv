@@ -64,7 +64,18 @@ All customization via `resume.json` at project root:
     "password": "hire-me",
     "hostname": "kiro-cv"
   },
-  
+  "personal": {                        // Optional — falls back to defaults in src/config/personal.ts
+    "status": "...",                   // /status
+    "timezone": "America/Sao_Paulo",   // /usage
+    "careerModels": [ ... ],           // /model selector
+    "skillCategories": [ ... ],        // /skills grouping & colors
+    "doctorChecks": [ ... ],           // /doctor
+    "usageStats": [ ... ],             // /usage
+    "costItems": [ ... ],              // /cost
+    "initContent": [ ... ]             // /init (one string per line)
+  },
+  "meta": { "version": "v1.0.0" },     // Shown in /help, /version, /changelog
+
   "basics": { ... },                   // JSON Resume standard fields
   "work": [ ... ],
   "skills": [ ... ]
@@ -115,7 +126,7 @@ Refuses: politics, medical/legal advice, code generation, off-topic requests.
 | File | Purpose |
 |------|---------|
 | `Terminal.tsx` | All state, command dispatch, AI chat handling |
-| `commands.ts` | Command definitions (47+ commands) |
+| `commands.ts` | Command definitions (52 commands) |
 | `system-prompt.ts` | AI personality and guardrails |
 | `colors.ts` | Kiro color palette |
 | `resume.json` | All content and configuration |

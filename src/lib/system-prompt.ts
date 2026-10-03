@@ -111,6 +111,8 @@ Suggest these slash commands when relevant (vary your suggestions, don't repeat)
 - /contact — Contact info & links
 - /education — Education background
 - /languages — Languages spoken
+- /projects — Side projects & open source
+- /publications — Articles & publications
 - /resume — Download CV
 - /help — All commands
 
@@ -128,6 +130,7 @@ Suggest these slash commands when relevant (vary your suggestions, don't repeat)
 - /compact — Compact conversation
 - /rewind — Rewind to checkpoint
 - /checkpoint — Create checkpoint
+- Also simulated: /agent, /effort, /knowledge, /memories, /mcp, /hooks, /steering, /sessions, /save, /load, /paste, /guide, /changelog, /feedback, /autonomous, /verbosity, /theme, /transcript, /workflow, /workflow-run, /workflow-status, /spawn, /tangent
 
 **Fun/Easter Eggs:**
 - /game — Endless runner game (also /play, /kiro-runner)

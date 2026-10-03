@@ -2,6 +2,10 @@
 
 Extracted from `~/.local/share/kiro-cli/tui.js` and `~/.local/bin/kiro-cli` binary.
 
+> Reference notes about the real Kiro CLI — not a description of this project.
+> The palette actually used by the portfolio lives in `src/lib/colors.ts`, and the
+> commands it implements are listed in `src/lib/commands.ts` (see `docs/DEV.md`).
+
 ## Official Colors
 
 - **Logo SVG Fill**: `#7B5CFA` (purple, from binary SVG paths)

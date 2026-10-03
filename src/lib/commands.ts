@@ -11,6 +11,8 @@ export const commands: CommandDefinition[] = [
   { name: '/education', aliases: ['/edu'], description: 'Education background', category: 'content' },
   { name: '/certs', aliases: ['/certifications'], description: 'Professional certifications', category: 'content' },
   { name: '/contact', aliases: ['/links', '/socials'], description: 'Contact info & social links', category: 'content' },
+  { name: '/projects', aliases: ['/proj'], description: 'Side projects & open source', category: 'content' },
+  { name: '/publications', aliases: ['/pubs', '/articles'], description: 'Articles & publications', category: 'content' },
   { name: '/languages', aliases: ['/lang'], description: 'Languages spoken', category: 'content' },
   { name: '/resume', aliases: ['/pdf', '/download'], description: 'Download resume as PDF', category: 'content' },
 

@@ -55,6 +55,40 @@ export interface ResumeDownload {
   url: string;
 }
 
+export interface ResumeProject {
+  name: string;
+  description: string;
+  highlights?: string[];
+  keywords?: string[];
+  url?: string;
+  type?: string;
+}
+
+export interface ResumePublication {
+  name: string;
+  publisher: string;
+  releaseDate?: string;
+  url?: string;
+  summary?: string;
+}
+
+export interface ResumeMeta {
+  canonical?: string;
+  version?: string;
+  lastModified?: string;
+}
+
+export interface ResumePersonal {
+  status?: string;
+  timezone?: string;
+  careerModels?: { name: string; subtitle: string; description: string }[];
+  skillCategories?: { name: string; skills: string[]; color: string }[];
+  doctorChecks?: { label: string; result: string; severity: 'success' | 'warning' | 'error' }[];
+  usageStats?: { label: string; percent: number; status: string }[];
+  costItems?: { label: string; value: string }[];
+  initContent?: string[];
+}
+
 export interface Resume {
   splash?: string;
   siteTitle?: string;
@@ -76,7 +110,11 @@ export interface Resume {
   certificates: ResumeCertificate[];
   skills: ResumeSkill[];
   languages: ResumeLanguage[];
+  projects?: ResumeProject[];
+  publications?: ResumePublication[];
   resume?: ResumeDownload;
+  personal?: ResumePersonal;
+  meta?: ResumeMeta;
 }
 
 export const resume: Resume = resumeJson as Resume;

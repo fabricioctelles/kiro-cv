@@ -1,18 +1,18 @@
 /**
  * Centralized personal configuration for Kiro CLI portfolio.
- * Career data, fun command content, and display settings.
+ * Values come from the "personal" section of resume.json; the defaults
+ * below are used for any field that is missing there.
  */
 
-import { resume } from '@/lib/resume-data';
+import { resume, type ResumePersonal } from '@/lib/resume-data';
 
 const careerStartYear = Math.min(
   ...resume.work.map((w) => new Date(w.startDate).getFullYear()),
 );
 
-export const personalConfig = {
-  careerStartYear,
-  timezone: 'America/Sao_Paulo',
+const defaults: Required<ResumePersonal> = {
   status: 'Open to interesting opportunities',
+  timezone: 'America/Sao_Paulo',
 
   // Models displayed in /model command (styled like AI models)
   careerModels: [
@@ -96,20 +96,6 @@ export const personalConfig = {
     '> "Great developers are hard to find. You just found one."',
   ],
 
-  // Tips shown in welcome screen
-  welcomeTips: [
-    { cmd: '/help', desc: 'List all available commands' },
-    { cmd: '/about', desc: 'Who am I — summary & current role' },
-    { cmd: '/experience', desc: 'Full work history timeline' },
-    { cmd: '/skills', desc: 'Technical skills & toolkit' },
-  ],
-
-  // Recent activity items
-  recentActivity: [
-    'Building with Kiro CLI',
-    'Exploring agentic development',
-  ],
-
   // Skill categories for /skills command
   skillCategories: [
     {
@@ -133,9 +119,15 @@ export const personalConfig = {
       color: '#FF6B6B',
     },
   ],
-} as const;
+};
 
-export type CareerModel = (typeof personalConfig.careerModels)[number];
-export type DoctorCheck = (typeof personalConfig.doctorChecks)[number];
-export type UsageStat = (typeof personalConfig.usageStats)[number];
-export type CostItem = (typeof personalConfig.costItems)[number];
+export const personalConfig = {
+  careerStartYear,
+  ...defaults,
+  ...resume.personal,
+};
+
+export type CareerModel = Required<ResumePersonal>['careerModels'][number];
+export type DoctorCheck = Required<ResumePersonal>['doctorChecks'][number];
+export type UsageStat = Required<ResumePersonal>['usageStats'][number];
+export type CostItem = Required<ResumePersonal>['costItems'][number];

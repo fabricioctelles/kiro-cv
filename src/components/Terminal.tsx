@@ -12,6 +12,8 @@ import { useTerminalScroll } from '@/hooks/useTerminalScroll';
 import { findCommand, fuzzyMatch, filterCommands } from '@/lib/commands';
 import { colors } from '@/lib/colors';
 import { siteConfig } from '@/config/site';
+import { resume } from '@/lib/resume-data';
+
 import { ConnectingLine } from './chrome/ConnectingLine';
 import { Divider } from './chrome/Divider';
 import { MessageBar, UserPrompt } from './chrome/MessageBar';
@@ -28,6 +30,8 @@ import { Certs } from './commands/Certs';
 import { Contact } from './commands/Contact';
 import { Models, careerModels } from './commands/Models';
 import { Languages } from './commands/Languages';
+import { Projects } from './commands/Projects';
+import { Publications } from './commands/Publications';
 import { Status } from './commands/Status';
 import { Cost } from './commands/Cost';
 import { Doctor } from './commands/Doctor';
@@ -37,6 +41,9 @@ import { Init } from './commands/Init';
 import { Game } from './commands/Game';
 import { Version } from './commands/Version';
 import { LoginScreen } from './LoginScreen';
+
+// Easter egg: "sudo hire <first name>" (first name from resume.json basics.name)
+const hireName = resume.basics.name.split(' ')[0].toLowerCase();
 
 interface HistoryEntry {
   id: string;
@@ -215,9 +222,10 @@ export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultMo
       case '/certs': return <Certs />;
       case '/contact': return <Contact />;
       case '/model':
-      case '/models':
         return null; // handled separately — opens interactive selector
       case '/languages': return <Languages />;
+      case '/projects': return <Projects />;
+      case '/publications': return <Publications />;
       case '/status': return <Status />;
       case '/cost': return <Cost />;
       case '/doctor': return <Doctor />;
@@ -228,7 +236,6 @@ export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultMo
       case '/init':
         return <Init />;
       case '/clear':
-      case '/cls':
         return null; // handled separately
       
       // ═══════════════════════════════════════════════════════════════════════
@@ -290,7 +297,6 @@ export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultMo
         );
       
       case '/knowledge':
-      case '/kb':
         return (
           <div className="text-xs sm:text-sm py-1">
             <div style={{ color: colors.brand }}>Knowledge Base:</div>
@@ -328,7 +334,6 @@ export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultMo
         );
       
       case '/config':
-      case '/settings':
         return (
           <div className="text-xs sm:text-sm py-1">
             <div style={{ color: colors.brand }}>Configuration:</div>
@@ -400,7 +405,7 @@ export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultMo
       case '/changelog':
         return (
           <div className="text-xs sm:text-sm py-1">
-            <div style={{ color: colors.brand }}>Changelog v3.0.0:</div>
+            <div style={{ color: colors.brand }}>Changelog v{siteConfig.version}:</div>
             <div style={{ color: colors.muted }}>• New Kiro-style UI</div>
             <div style={{ color: colors.muted }}>• Interactive command selector</div>
             <div style={{ color: colors.muted }}>• AI chat integration</div>
@@ -417,7 +422,6 @@ export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultMo
         );
       
       case '/autonomous':
-      case '/auto':
         return (
           <div className="text-xs sm:text-sm py-1" style={{ color: colors.warning }}>
             ⚡ Autonomous mode is always on. I&apos;m here to help!
@@ -460,7 +464,6 @@ export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultMo
         );
       
       case '/workflow':
-      case '/workflows':
         return (
           <div className="text-xs sm:text-sm py-1">
             <div style={{ color: colors.brand }}>Available Workflows:</div>
@@ -498,8 +501,6 @@ export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultMo
         );
       
       case '/quit':
-      case '/exit':
-      case '/q':
         return (
           <div className="text-xs sm:text-sm py-1" style={{ color: colors.muted }}>
             Thanks for visiting! But you can&apos;t really quit a portfolio... 😄
@@ -509,8 +510,6 @@ export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultMo
         );
       
       case '/game':
-      case '/play':
-      case '/kiro-runner':
         return <Game />;
 
       default:
@@ -682,7 +681,7 @@ export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultMo
         }
 
         // /quit, /exit, /q — show login screen
-        if (cmd.name === '/quit' || cmd.name === '/exit' || cmd.name === '/q') {
+        if (cmd.name === '/quit') {
           if (login?.user && login?.password) {
             setShowLoginScreen(true);
             setInput('');
@@ -716,7 +715,7 @@ export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultMo
     } else {
       // Easter eggs
       const lower = trimmed.toLowerCase();
-      if (lower === 'sudo hire alfonso') {
+      if (lower === 'sudo hire me' || lower === `sudo hire ${hireName}`) {
         addEntry({
           type: 'command',
           input: trimmed,
