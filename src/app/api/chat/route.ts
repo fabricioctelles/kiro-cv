@@ -4,7 +4,7 @@ import { streamText } from 'ai';
 import { SYSTEM_PROMPT } from '@/lib/system-prompt';
 import { getClientIp } from '@/lib/api-security';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // LIMITS
