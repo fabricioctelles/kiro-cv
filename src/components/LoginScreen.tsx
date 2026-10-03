@@ -7,6 +7,7 @@ interface LoginScreenProps {
   hostname: string;
   expectedUser: string;
   expectedPassword: string;
+  hints?: string[];
   onLoginSuccess: () => void;
 }
 
@@ -15,7 +16,8 @@ type LoginState = 'user' | 'password' | 'checking' | 'failed' | 'success';
 export function LoginScreen({ 
   hostname, 
   expectedUser, 
-  expectedPassword, 
+  expectedPassword,
+  hints = [],
   onLoginSuccess 
 }: LoginScreenProps) {
   const [state, setState] = useState<LoginState>('user');
@@ -90,9 +92,14 @@ export function LoginScreen({
         <div>Kiro CV Terminal v1.0.0</div>
         <div>Copyright (c) {new Date().getFullYear()}</div>
         <div className="mt-2">Type credentials to access the system.</div>
-        {attempts > 0 && (
-          <div className="mt-1" style={{ color: colors.warning }}>
-            Hint: check resume.json for credentials 😉
+        {/* Progressive hints based on attempts */}
+        {attempts > 0 && hints.length > 0 && (
+          <div className="mt-2 space-y-1">
+            {hints.slice(0, attempts).map((hint, i) => (
+              <div key={i} style={{ color: i === attempts - 1 ? colors.warning : colors.muted }}>
+                {hint}
+              </div>
+            ))}
           </div>
         )}
       </div>

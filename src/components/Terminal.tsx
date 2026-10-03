@@ -55,6 +55,7 @@ interface LoginConfig {
   user?: string;
   password?: string;
   hostname?: string;
+  hints?: string[];
 }
 
 interface TerminalProps {
@@ -851,6 +852,7 @@ export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultMo
         hostname={login.hostname || 'kiro-cv'}
         expectedUser={login.user}
         expectedPassword={login.password}
+        hints={login.hints}
         onLoginSuccess={handleLoginSuccess}
       />
     );

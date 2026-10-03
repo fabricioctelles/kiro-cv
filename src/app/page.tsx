@@ -6,6 +6,7 @@ interface LoginConfig {
   user?: string;
   password?: string;
   hostname?: string;
+  hints?: string[];
 }
 
 interface ResumeConfig {
