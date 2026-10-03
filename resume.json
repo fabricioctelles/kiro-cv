@@ -1,0 +1,265 @@
+{
+  "splash": "KIRO",
+  "welcome": "Welcome to Kiro CV!",
+  "whatsNew": "AI chat, 47+ commands, and full JSON configuration.",
+  "trustNotice": "All tools trusted · /help for commands",
+  "model": "Senior Engineer 4.0",
+  "folder": "~/portfolio/kiro-cv · (main)",
+  "login": {
+    "user": "guest",
+    "password": "hire-me",
+    "hostname": "kiro-cv",
+    "hints": [
+      "Hint: check resume.json for credentials 😉",
+      "User starts with 'g'...",
+      "User: guest",
+      "Password has a dash in it...",
+      "Password: hire-me"
+    ]
+  },
+
+  "basics": {
+    "name": "Alex Chen",
+    "label": "Senior Software Engineer & Cloud Architect",
+    "image": "https://avatars.githubusercontent.com/u/12345678",
+    "email": "alex.chen@example.com",
+    "phone": "+1 (555) 123-4567",
+    "url": "https://alexchen.dev",
+    "summary": "Senior Software Engineer with 8+ years of experience building scalable distributed systems and cloud-native applications. Passionate about developer experience, infrastructure automation, and turning complex problems into elegant solutions. Open source contributor and occasional tech blogger. Currently focused on AI/ML infrastructure and platform engineering.",
+    "location": {
+      "address": "123 Tech Street",
+      "postalCode": "94102",
+      "city": "San Francisco",
+      "countryCode": "US",
+      "region": "California"
+    },
+    "profiles": [
+      {
+        "network": "GitHub",
+        "username": "alexchen",
+        "url": "https://github.com/alexchen"
+      },
+      {
+        "network": "LinkedIn",
+        "username": "alexchen-dev",
+        "url": "https://linkedin.com/in/alexchen-dev"
+      },
+      {
+        "network": "Twitter",
+        "username": "alexchen_dev",
+        "url": "https://twitter.com/alexchen_dev"
+      },
+      {
+        "network": "Blog",
+        "username": "alexchen.dev/blog",
+        "url": "https://alexchen.dev/blog"
+      }
+    ]
+  },
+
+  "work": [
+    {
+      "name": "Acme Cloud Inc",
+      "position": "Senior Software Engineer",
+      "url": "https://acmecloud.io",
+      "startDate": "2022-03-01",
+      "endDate": null,
+      "summary": "Leading platform engineering initiatives for a cloud infrastructure company serving Fortune 500 clients.",
+      "highlights": [
+        "Architected and led development of a multi-tenant Kubernetes platform serving 200+ engineering teams",
+        "Reduced deployment time from 45 minutes to 3 minutes by redesigning CI/CD pipelines with GitOps",
+        "Built real-time monitoring system processing 10M+ events/second using Kafka and ClickHouse",
+        "Mentored 4 junior engineers and established team coding standards and review processes",
+        "Open-sourced internal tooling that gained 2.5k+ GitHub stars"
+      ]
+    },
+    {
+      "name": "TechStartup.io",
+      "position": "Software Engineer",
+      "url": "https://techstartup.io",
+      "startDate": "2019-06-01",
+      "endDate": "2022-02-28",
+      "summary": "Full-stack development for a B2B SaaS platform in the fintech space.",
+      "highlights": [
+        "Built React/TypeScript frontend serving 50k+ daily active users",
+        "Designed and implemented GraphQL API layer reducing frontend data fetching by 60%",
+        "Led migration from monolith to microservices architecture",
+        "Implemented end-to-end encryption for PCI-DSS compliance",
+        "Reduced AWS costs by 35% through infrastructure optimization"
+      ]
+    },
+    {
+      "name": "BigCorp Technologies",
+      "position": "Junior Software Engineer",
+      "url": "https://bigcorp.com",
+      "startDate": "2016-08-01",
+      "endDate": "2019-05-31",
+      "summary": "Backend development for enterprise data processing systems.",
+      "highlights": [
+        "Developed ETL pipelines processing 500GB+ daily data volume",
+        "Built internal tools that saved 20+ engineering hours per week",
+        "Contributed to company-wide Python style guide and best practices",
+        "Received 'Rising Star' award for Q3 2018"
+      ]
+    }
+  ],
+
+  "education": [
+    {
+      "institution": "University of California, Berkeley",
+      "url": "https://berkeley.edu",
+      "area": "Computer Science",
+      "studyType": "Bachelor of Science",
+      "startDate": "2012-08-01",
+      "endDate": "2016-05-15",
+      "score": "3.8 GPA",
+      "courses": [
+        "CS 61A - Structure and Interpretation of Computer Programs",
+        "CS 61B - Data Structures",
+        "CS 162 - Operating Systems",
+        "CS 186 - Database Systems",
+        "CS 189 - Machine Learning"
+      ]
+    }
+  ],
+
+  "certificates": [
+    {
+      "name": "AWS Solutions Architect Professional",
+      "date": "2023-06-15",
+      "issuer": "Amazon Web Services",
+      "url": "https://aws.amazon.com/certification/certified-solutions-architect-professional/"
+    },
+    {
+      "name": "Certified Kubernetes Administrator (CKA)",
+      "date": "2023-01-20",
+      "issuer": "Cloud Native Computing Foundation",
+      "url": "https://www.cncf.io/certification/cka/"
+    },
+    {
+      "name": "Google Cloud Professional Cloud Architect",
+      "date": "2022-09-10",
+      "issuer": "Google Cloud",
+      "url": "https://cloud.google.com/certification/cloud-architect"
+    },
+    {
+      "name": "HashiCorp Certified: Terraform Associate",
+      "date": "2022-04-05",
+      "issuer": "HashiCorp",
+      "url": "https://www.hashicorp.com/certification/terraform-associate"
+    }
+  ],
+
+  "skills": [
+    {
+      "name": "Languages",
+      "level": "Expert",
+      "keywords": ["TypeScript", "Python", "Go", "Rust", "JavaScript", "SQL", "Bash"]
+    },
+    {
+      "name": "Frontend",
+      "level": "Advanced",
+      "keywords": ["React", "Next.js", "Vue.js", "Tailwind CSS", "GraphQL", "WebSockets"]
+    },
+    {
+      "name": "Backend",
+      "level": "Expert",
+      "keywords": ["Node.js", "FastAPI", "PostgreSQL", "Redis", "Kafka", "gRPC", "REST APIs"]
+    },
+    {
+      "name": "Cloud & DevOps",
+      "level": "Expert",
+      "keywords": ["AWS", "GCP", "Kubernetes", "Docker", "Terraform", "ArgoCD", "GitHub Actions"]
+    },
+    {
+      "name": "Data & ML",
+      "level": "Intermediate",
+      "keywords": ["Apache Spark", "ClickHouse", "Airflow", "MLflow", "PyTorch", "LangChain"]
+    },
+    {
+      "name": "Observability",
+      "level": "Advanced",
+      "keywords": ["Prometheus", "Grafana", "Datadog", "OpenTelemetry", "ELK Stack"]
+    }
+  ],
+
+  "languages": [
+    {
+      "language": "English",
+      "fluency": "Native"
+    },
+    {
+      "language": "Mandarin Chinese",
+      "fluency": "Native"
+    },
+    {
+      "language": "Spanish",
+      "fluency": "Conversational"
+    }
+  ],
+
+  "projects": [
+    {
+      "name": "KubeForge",
+      "description": "Open-source Kubernetes deployment toolkit with GitOps support",
+      "highlights": [
+        "2.5k+ GitHub stars",
+        "Used by 50+ companies in production",
+        "Featured in KubeCon 2023"
+      ],
+      "keywords": ["Go", "Kubernetes", "GitOps", "CLI"],
+      "url": "https://github.com/alexchen/kubeforge",
+      "type": "open-source"
+    },
+    {
+      "name": "StreamPipe",
+      "description": "Real-time data pipeline framework for event-driven architectures",
+      "highlights": [
+        "Processes 1M+ events/second",
+        "Sub-millisecond latency",
+        "Built-in schema registry"
+      ],
+      "keywords": ["Rust", "Kafka", "gRPC", "Protocol Buffers"],
+      "url": "https://github.com/alexchen/streampipe",
+      "type": "open-source"
+    }
+  ],
+
+  "publications": [
+    {
+      "name": "Building Scalable Event-Driven Systems with Kafka and Kubernetes",
+      "publisher": "InfoQ",
+      "releaseDate": "2023-08-15",
+      "url": "https://infoq.com/articles/kafka-kubernetes-scaling",
+      "summary": "Deep dive into patterns for building reliable event-driven architectures at scale."
+    }
+  ],
+
+  "interests": [
+    {
+      "name": "Open Source",
+      "keywords": ["Kubernetes ecosystem", "Developer tools", "Infrastructure automation"]
+    },
+    {
+      "name": "Learning",
+      "keywords": ["Distributed systems", "Programming language design", "AI/ML infrastructure"]
+    },
+    {
+      "name": "Outside Tech",
+      "keywords": ["Rock climbing", "Coffee brewing", "Mechanical keyboards"]
+    }
+  ],
+
+  "references": [
+    {
+      "name": "Available upon request",
+      "reference": "References from current and former managers available upon request."
+    }
+  ],
+
+  "meta": {
+    "canonical": "https://alexchen.dev/resume.json",
+    "version": "v1.0.0",
+    "lastModified": "2024-01-15"
+  }
+}
