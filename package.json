@@ -11,12 +11,14 @@
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.2.0",
+    "@thesvg/icons": "^3.3.10",
     "@vercel/analytics": "^2.0.0",
     "ai": "^4.3.0",
     "next": "^15.3.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-markdown": "^10.1.0"
+    "react-markdown": "^10.1.0",
+    "thesvg": "^3.3.10"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.0.0",
