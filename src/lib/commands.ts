@@ -79,6 +79,7 @@ export const commands: CommandDefinition[] = [
   { name: '/doctor', aliases: [], description: 'Run skill diagnostics', category: 'fun' },
   { name: '/usage', aliases: [], description: 'Session usage stats', category: 'fun' },
   { name: '/init', aliases: [], description: 'Generate KIRO.md', category: 'fun' },
+  { name: '/game', aliases: ['/play', '/kiro-runner'], description: 'Play Kiro Runner', category: 'fun' },
 ];
 
 export function findCommand(input: string): CommandDefinition | null {
