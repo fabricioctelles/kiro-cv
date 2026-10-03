@@ -571,17 +571,8 @@ export function Terminal({ splashName, welcome, whatsNew, trustNotice, defaultMo
           if (done) break;
 
           const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split('\n');
-          for (const line of lines) {
-            if (line.startsWith('0:')) {
-              try {
-                const text = JSON.parse(line.slice(2));
-                accumulated += text;
-              } catch {
-                accumulated += line.slice(2);
-              }
-            }
-          }
+          // TextStream format: plain text chunks
+          accumulated += chunk;
 
           setHistory((prev) =>
             prev.map((e) =>

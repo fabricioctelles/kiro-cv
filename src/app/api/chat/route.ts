@@ -1,5 +1,5 @@
 import { createOpenAI } from '@ai-sdk/openai';
-import { streamText } from 'ai';
+import { streamText, toTextStream, createTextStreamResponse } from 'ai';
 // System prompt: src/lib/system-prompt.ts
 import { SYSTEM_PROMPT } from '@/lib/system-prompt';
 import { getClientIp } from '@/lib/api-security';
@@ -239,14 +239,15 @@ export async function POST(req: Request) {
     // Call LLM
     const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
 
-    const result = await streamText({
+    const result = streamText({
       model: openai(model),
-      system: SYSTEM_PROMPT,
+      instructions: SYSTEM_PROMPT,
       messages: messages as { role: 'user' | 'assistant'; content: string }[],
-      maxTokens: 300,
+      maxOutputTokens: 300,
     });
 
-    return result.toDataStreamResponse();
+    const textStream = toTextStream({ stream: result.stream });
+    return createTextStreamResponse({ stream: textStream });
 
   } catch (error: unknown) {
     if (error instanceof Error && 'status' in error && (error as { status: number }).status === 429) {
