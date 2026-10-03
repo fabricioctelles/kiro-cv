@@ -53,12 +53,14 @@ export function InputBox({
   }, [disabled]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    // Pass to parent first — let Terminal handle slash menu, history nav, etc.
+    onKeyDown(e);
+    
+    // If parent didn't prevent default, handle Enter for submit
+    if (e.key === 'Enter' && !e.shiftKey && !e.defaultPrevented) {
       e.preventDefault();
       onSubmit();
-      return;
     }
-    onKeyDown(e);
   };
 
   const showPlaceholder = value === '';
