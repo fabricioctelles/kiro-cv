@@ -8,7 +8,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "tsc --noEmit",
-    "lint:full": "eslint . && tsc --noEmit"
+    "lint:full": "eslint . && tsc --noEmit",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug"
   },
   "dependencies": {
     "@ai-sdk/openai": "^4.0.83",
@@ -25,6 +29,7 @@
     "@eslint/eslintrc": "^3.3.7",
     "@eslint/js": "^10.0.1",
     "@next/eslint-plugin-next": "^16.3.8",
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^22.0.0",
     "@types/react": "^19.3.0",
