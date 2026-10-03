@@ -244,12 +244,32 @@ export async function POST(req: Request) {
       instructions: SYSTEM_PROMPT,
       messages: messages as { role: 'user' | 'assistant'; content: string }[],
       maxOutputTokens: 300,
+      
+      // AI SDK 7: Timeout configuration to prevent hanging requests
+      timeout: {
+        totalMs: 30000,    // 30 seconds total
+        chunkMs: 5000,     // abort if no chunk received for 5 seconds
+      },
+      
+      // AI SDK 7: Lifecycle callbacks for observability
+      onStart: ({ modelId }) => {
+        console.log(`[chat] Request started | model=${modelId} | ip=${ip}`);
+      },
+      onFinish: ({ usage, finishReason }) => {
+        console.log(`[chat] Request finished | reason=${finishReason} | tokens=${usage?.totalTokens || 'unknown'}`);
+      },
     });
 
     const textStream = toTextStream({ stream: result.stream });
     return createTextStreamResponse({ stream: textStream });
 
   } catch (error: unknown) {
+    // AI SDK 7: Handle timeout errors
+    if (error instanceof Error && error.name === 'TimeoutError') {
+      console.error('[chat] Request timed out:', error.message);
+      return jsonResponse({ error: 'Request timed out. Please try again.' }, 504);
+    }
+    
     if (error instanceof Error && 'status' in error && (error as { status: number }).status === 429) {
       return jsonResponse({ error: 'Rate limit exceeded' }, 429);
     }
