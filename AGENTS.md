@@ -59,6 +59,11 @@ All customization via `resume.json` at project root:
   "trustNotice": "Warning · hint",     // Status bar (split on · for colors)
   "model": "Senior Engineer 4.0",      // Default model in status line
   "folder": "~/path · (branch)",       // Path in status line
+  "login": {                           // Optional login screen on /quit
+    "user": "guest",
+    "password": "hire-me",
+    "hostname": "kiro-cv"
+  },
   
   "basics": { ... },                   // JSON Resume standard fields
   "work": [ ... ],
@@ -115,6 +120,13 @@ Refuses: politics, medical/legal advice, code generation, off-topic requests.
 | `colors.ts` | Kiro color palette |
 | `resume.json` | All content and configuration |
 | `api/chat/route.ts` | LLM endpoint with rate limiting |
+| `LoginScreen.tsx` | Terminal login screen shown on /quit |
+| `Game.tsx` | Kiro Ghost runner easter egg |
+
+## Easter Eggs
+
+- `/game` (or `/play`, `/kiro-runner`) — Endless runner with Kiro Ghost dodging dev obstacles
+- `/quit` with `login` configured — Shows retro terminal login screen
 
 ## Conventions
 

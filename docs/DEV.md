@@ -70,6 +70,11 @@ The `resume.json` file at the project root is the **primary configuration file**
   "trustNotice": "Trust All Tools active, confirmations are off · /quit to exit",
   "model": "Senior Engineer 4.0",
   "folder": "~/workspace/projects/my-project · (main)",
+  "login": {
+    "user": "guest",
+    "password": "hire-me",
+    "hostname": "kiro-cv"
+  },
   
   "basics": { ... },
   "work": [ ... ],
@@ -88,6 +93,7 @@ The `resume.json` file at the project root is the **primary configuration file**
 | `trustNotice` | Trust banner text (split on `·` for colors) | `TrustNotice.tsx` |
 | `model` | Default career model name | `Terminal.tsx` state |
 | `folder` | Path shown in status line (format: `path · (branch)`) | `StatusLine.tsx` |
+| `login` | Login screen config (user, password, hostname) | `LoginScreen.tsx` |
 
 ### URL Parameter Override
 
@@ -378,13 +384,61 @@ Background and base styles in `src/app/globals.css`:
 
 ### Fun Commands
 
-| Command | Description |
-|---------|-------------|
-| `/doctor` | Skill diagnostics |
-| `/cost` | Humorous cost analysis |
-| `/usage` | Usage stats |
-| `/init` | Generate KIRO.md |
-| `/todos` | Task list |
+| Command | Aliases | Description |
+|---------|---------|-------------|
+| `/doctor` | | Skill diagnostics |
+| `/cost` | | Humorous cost analysis |
+| `/usage` | | Usage stats |
+| `/init` | | Generate KIRO.md |
+| `/game` | `/play`, `/kiro-runner` | Kiro Ghost runner game |
+
+---
+
+## Easter Eggs
+
+### /game - Kiro Runner
+
+A endless runner game featuring the Kiro Ghost mascot. The ghost must jump over developer-themed obstacles.
+
+**Obstacles** (using real brand SVGs from theSVG):
+- Docker ("works on my machine")
+- Git merge conflicts
+- npm audit vulnerabilities
+- Slack @channel pings
+- Jira P0 tickets
+- Kubernetes CrashLoopBackOff
+- Sentry 500 errors
+- ESLint problems
+- Webpack building forever
+- Zoom "quick sync" meetings
+- Calendar blocks
+- null/undefined errors
+- Legacy code
+- Deadlines
+
+**Controls:**
+- `SPACE` or `↑` to jump
+- Click also works
+- High score saved in localStorage
+
+### /quit - Login Screen
+
+When `login` is configured in `resume.json`, the `/quit` command shows a retro terminal login screen instead of just a message.
+
+```json
+{
+  "login": {
+    "user": "guest",
+    "password": "hire-me", 
+    "hostname": "kiro-cv"
+  }
+}
+```
+
+- Black background (different from main terminal)
+- Classic `hostname login:` / `Password:` prompts
+- Shows hint after failed attempts
+- Successful login returns to welcome screen
 
 ---
 
