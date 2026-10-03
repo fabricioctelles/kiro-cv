@@ -81,7 +81,7 @@ export function LoginScreen({
 
   return (
     <div 
-      className="h-screen flex flex-col p-4 sm:p-8 font-mono text-xs sm:text-sm"
+      className="h-screen flex flex-col p-4 sm:p-8 font-mono text-xs sm:text-sm fixed inset-0 z-50"
       style={{ backgroundColor: '#000000', color: colors.text }}
       onClick={() => inputRef.current?.focus()}
     >
