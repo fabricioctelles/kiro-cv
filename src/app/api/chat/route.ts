@@ -182,6 +182,25 @@ const openai = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// AI SDK 7: Reasoning control - provider-agnostic thinking/reasoning phase
+// Values: 'none' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh' | 'provider-default'
+// Only works with models that support reasoning (Claude, Gemini, GPT-6, DeepSeek, etc.)
+type ReasoningLevel = 'none' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh' | 'provider-default';
+const VALID_REASONING_LEVELS = new Set<ReasoningLevel>(['none', 'minimal', 'low', 'medium', 'high', 'xhigh', 'provider-default']);
+
+function getReasoningLevel(): ReasoningLevel | undefined {
+  const envValue = process.env.LLM_REASONING;
+  if (!envValue) return undefined; // Don't set reasoning if not configured
+  
+  const level = envValue.toLowerCase() as ReasoningLevel;
+  if (VALID_REASONING_LEVELS.has(level)) {
+    return level;
+  }
+  
+  console.warn(`[chat] Invalid LLM_REASONING value: "${envValue}". Valid values: ${[...VALID_REASONING_LEVELS].join(', ')}`);
+  return undefined;
+}
+
 function jsonResponse(body: unknown, status: number, extraHeaders?: Record<string, string>) {
   return new Response(JSON.stringify(body), {
     status,
@@ -251,11 +270,18 @@ export async function POST(req: Request) {
       ? createTelemetryCollector({ callId, model, ip, prompt })
       : null;
 
+    // AI SDK 7: Get reasoning level from env (if configured)
+    const reasoning = getReasoningLevel();
+
     const result = streamText({
       model: openai(model),
       instructions: SYSTEM_PROMPT,
       messages: typedMessages,
       maxOutputTokens: 300,
+      
+      // AI SDK 7: Provider-agnostic reasoning control
+      // Only included if LLM_REASONING is set in env
+      ...(reasoning && { reasoning }),
       
       // AI SDK 7: Timeout configuration to prevent hanging requests
       timeout: {
@@ -265,7 +291,7 @@ export async function POST(req: Request) {
       
       // AI SDK 7: Lifecycle callbacks for observability
       onStart: ({ modelId }) => {
-        console.log(`[chat] Request started | callId=${callId} | model=${modelId} | ip=${ip}`);
+        console.log(`[chat] Request started | callId=${callId} | model=${modelId} | ip=${ip}${reasoning ? ` | reasoning=${reasoning}` : ''}`);
       },
       onFinish: async ({ text, usage, finishReason }) => {
         console.log(`[chat] Request finished | callId=${callId} | reason=${finishReason} | tokens=${usage?.totalTokens || 'unknown'}`);
